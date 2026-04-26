@@ -1,0 +1,19 @@
+{
+  "name": "harness-skills",
+  "owner": {
+    "name": "Tongdun Skills Team"
+  },
+  "metadata": {
+    "description": "Production-grade engineering skills for AI coding agents — covering the full software development lifecycle from spec to ship."
+  },
+  "plugins": [
+    {
+      "name": "harness-skills",
+      "source": {
+        "source": "gitlab",
+        "repo": "skills/harness-skills"
+      },
+      "description": "Production-grade engineering skills covering every phase of software development: spec, plan, build, verify, review, and ship."
+    }
+  ]
+}

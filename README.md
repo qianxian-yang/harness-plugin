@@ -32,88 +32,122 @@ Optional domain skills can still be applied based on context — for example, AP
 
 ## Quick Start
 
+If you want the fastest path, do this first:
+
+1. Clone the repo
+2. Pick 2-3 skills to start with (`test-driven-development`, `code-review-and-quality`, `context-engineering`)
+3. Follow the setup block for your agent
+
+```bash
+git clone git@gitlab.tongdun.cn:skills/harness-skills.git
+cd harness-skills
+```
+
 <details>
 <summary><b>Claude Code (recommended)</b></summary>
 
-**Marketplace install:**
+**Option A: Marketplace (fastest)**
 
 ```
-/plugin marketplace add addyosmani/td-harness
-/plugin install td-harness@addy-td-harness
+/plugin marketplace add skills/harness-skills
+/plugin install harness-skills
 ```
 
-> **SSH errors?** The marketplace clones repos via SSH. If you don't have SSH keys set up on GitHub, either [add your SSH key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) or switch to HTTPS for fetches only:
+> **SSH errors?** The marketplace clones repos via SSH. If you don't have SSH keys set up on GitLab, add your SSH key in GitLab settings, or switch to HTTPS for fetches only:
 > ```bash
-> git config --global url."https://github.com/".insteadOf "git@github.com:"
+> git config --global url."https://gitlab.tongdun.cn/".insteadOf "git@gitlab.tongdun.cn:"
 > ```
 
-**Local / development:**
+**Option B: Local / development**
 
 ```bash
-git clone https://github.com/addyosmani/td-harness.git
-claude --plugin-dir /path/to/td-harness
+claude --plugin-dir /path/to/harness-skills
 ```
+
+After install, run `/test` in Claude Code to confirm commands are available.
 
 </details>
 
 <details>
 <summary><b>Cursor</b></summary>
 
-Copy any `SKILL.md` into `.cursor/rules/`, or reference the full `skills/` directory. See [docs/cursor-setup.md](docs/cursor-setup.md).
+Use `.cursor/rules/` and load the three core skills first:
+
+```bash
+mkdir -p .cursor/rules
+cp /path/to/harness-skills/skills/test-driven-development/SKILL.md .cursor/rules/test-driven-development.md
+cp /path/to/harness-skills/skills/code-review-and-quality/SKILL.md .cursor/rules/code-review-and-quality.md
+cp /path/to/harness-skills/skills/context-engineering/SKILL.md .cursor/rules/context-engineering.md
+```
+
+Full setup options (rules, `.cursorrules`, Notepads): [docs/cursor-setup.md](docs/cursor-setup.md).
 
 </details>
 
 <details>
 <summary><b>Gemini CLI</b></summary>
 
-Install as native skills for auto-discovery, or add to `GEMINI.md` for persistent context. See [docs/gemini-cli-setup.md](docs/gemini-cli-setup.md).
-
-**Install from the repo:**
+Install as native skills for auto-discovery:
 
 ```bash
-gemini skills install https://github.com/addyosmani/td-harness.git --path skills
+gemini skills install git@gitlab.tongdun.cn:skills/harness-skills.git --path skills
 ```
 
-**Install from a local clone:**
+Or install from a local clone:
 
 ```bash
-gemini skills install ./td-harness/skills/
+gemini skills install /path/to/harness-skills/skills/
 ```
+
+Verify with `/skills list`.
+
+Persistent-context setup with `GEMINI.md`: [docs/gemini-cli-setup.md](docs/gemini-cli-setup.md).
 
 </details>
 
 <details>
 <summary><b>Windsurf</b></summary>
 
-Add skill contents to your Windsurf rules configuration. See [docs/windsurf-setup.md](docs/windsurf-setup.md).
+Add the core skills to `.windsurfrules`, then load domain skills only when needed.
+
+Step-by-step setup: [docs/windsurf-setup.md](docs/windsurf-setup.md).
 
 </details>
 
 <details>
 <summary><b>OpenCode</b></summary>
 
-Uses agent-driven skill execution via AGENTS.md and the `skill` tool.
+OpenCode uses agent-driven skill execution via `AGENTS.md` and the `skill` tool.
 
-See [docs/opencode-setup.md](docs/opencode-setup.md).
+1. Open this repository in OpenCode
+2. Keep `AGENTS.md` at repo root
+3. Keep the `skills/` directory intact
+
+Setup guide: [docs/opencode-setup.md](docs/opencode-setup.md).
 
 </details>
 
 <details>
 <summary><b>GitHub Copilot</b></summary>
 
-Use agent definitions from `agents/` as Copilot personas and skill content in `.github/copilot-instructions.md`. See [docs/copilot-setup.md](docs/copilot-setup.md).
+Use agent definitions from `agents/` as Copilot personas and skill content in `.github/copilot-instructions.md`.
+
+Step-by-step setup: [docs/copilot-setup.md](docs/copilot-setup.md).
 
 </details>
 
 <details>
-  <summary><b>Kiro IDE & CLI </b></summary>
-  Skills for Kiro reside under ".kiro/skills/" and can be stored under Project or Global level. Kiro also supports Agents.md. See Kiro docs at https://kiro.dev/docs/skills/
+  <summary><b>Kiro IDE & CLI</b></summary>
+  Skills for Kiro live under `.kiro/skills/` (project-level or global). Kiro also supports `AGENTS.md`.
+  See [Kiro skills docs](https://kiro.dev/docs/skills/).
 </details>
 
 <details>
 <summary><b>Codex / Other Agents</b></summary>
 
-Skills are plain Markdown - they work with any agent that accepts system prompts or instruction files. See [docs/getting-started.md](docs/getting-started.md).
+Skills are plain Markdown, so they work with any agent that accepts system prompts, rules files, or instruction files.
+
+Universal setup guide: [docs/getting-started.md](docs/getting-started.md).
 
 </details>
 
