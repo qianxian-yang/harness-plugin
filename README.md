@@ -1,0 +1,255 @@
+# TD Harness
+
+**Production-grade engineering skills for AI coding agents.**
+
+Skills encode the workflows, quality gates, and best practices that senior engineers use when building software. This company version focuses on test and review workflows.
+
+```
+ TEST                   REVIEW
+┌──────────────┐      ┌──────┐
+│ Code + Tests │ ───▶ │  QA  │
+│ (TDD)        │      │ Gate │
+└──────────────┘      └──────┘
+ /test              /review
+                   /code-simplify
+```
+
+---
+
+## Commands
+
+3 slash commands that map to this repo's core workflow. Each one activates the right skills automatically.
+
+| What you're doing | Command | Key principle |
+|-------------------|---------|---------------|
+| Prove it works | `/test` | Tests are proof |
+| Review before merge | `/review` | Improve code health |
+| Simplify the code | `/code-simplify` | Clarity over cleverness |
+
+Optional domain skills can still be applied based on context — for example, API-heavy work can use `api-and-interface-design`, and UI-heavy work can use `frontend-ui-engineering`.
+
+---
+
+## Quick Start
+
+<details>
+<summary><b>Claude Code (recommended)</b></summary>
+
+**Marketplace install:**
+
+```
+/plugin marketplace add addyosmani/td-harness
+/plugin install td-harness@addy-td-harness
+```
+
+> **SSH errors?** The marketplace clones repos via SSH. If you don't have SSH keys set up on GitHub, either [add your SSH key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) or switch to HTTPS for fetches only:
+> ```bash
+> git config --global url."https://github.com/".insteadOf "git@github.com:"
+> ```
+
+**Local / development:**
+
+```bash
+git clone https://github.com/addyosmani/td-harness.git
+claude --plugin-dir /path/to/td-harness
+```
+
+</details>
+
+<details>
+<summary><b>Cursor</b></summary>
+
+Copy any `SKILL.md` into `.cursor/rules/`, or reference the full `skills/` directory. See [docs/cursor-setup.md](docs/cursor-setup.md).
+
+</details>
+
+<details>
+<summary><b>Gemini CLI</b></summary>
+
+Install as native skills for auto-discovery, or add to `GEMINI.md` for persistent context. See [docs/gemini-cli-setup.md](docs/gemini-cli-setup.md).
+
+**Install from the repo:**
+
+```bash
+gemini skills install https://github.com/addyosmani/td-harness.git --path skills
+```
+
+**Install from a local clone:**
+
+```bash
+gemini skills install ./td-harness/skills/
+```
+
+</details>
+
+<details>
+<summary><b>Windsurf</b></summary>
+
+Add skill contents to your Windsurf rules configuration. See [docs/windsurf-setup.md](docs/windsurf-setup.md).
+
+</details>
+
+<details>
+<summary><b>OpenCode</b></summary>
+
+Uses agent-driven skill execution via AGENTS.md and the `skill` tool.
+
+See [docs/opencode-setup.md](docs/opencode-setup.md).
+
+</details>
+
+<details>
+<summary><b>GitHub Copilot</b></summary>
+
+Use agent definitions from `agents/` as Copilot personas and skill content in `.github/copilot-instructions.md`. See [docs/copilot-setup.md](docs/copilot-setup.md).
+
+</details>
+
+<details>
+  <summary><b>Kiro IDE & CLI </b></summary>
+  Skills for Kiro reside under ".kiro/skills/" and can be stored under Project or Global level. Kiro also supports Agents.md. See Kiro docs at https://kiro.dev/docs/skills/
+</details>
+
+<details>
+<summary><b>Codex / Other Agents</b></summary>
+
+Skills are plain Markdown - they work with any agent that accepts system prompts or instruction files. See [docs/getting-started.md](docs/getting-started.md).
+
+</details>
+
+
+
+---
+
+## All 10 Skills
+
+The commands above are the entry points. Under the hood, they activate these 10 skills — each one a structured workflow with steps, verification gates, and anti-rationalization tables. You can also reference any skill directly.
+
+### Core Workflow
+
+| Skill | What It Does | Use When |
+|-------|-------------|----------|
+| [test-driven-development](skills/test-driven-development/SKILL.md) | Red-Green-Refactor, test pyramid (80/15/5), test sizes, DAMP over DRY, Beyonce Rule, browser testing | Implementing logic, fixing bugs, or changing behavior |
+| [code-review-and-quality](skills/code-review-and-quality/SKILL.md) | Five-axis review, change sizing (~100 lines), severity labels (Nit/Optional/FYI), review speed norms, splitting strategies | Before merging any change |
+| [code-simplification](skills/code-simplification/SKILL.md) | Chesterton's Fence, Rule of 500, reduce complexity while preserving exact behavior | Code works but is harder to read or maintain than it should be |
+
+### Optional Domain Skills
+
+| Skill | What It Does | Use When |
+|-------|-------------|----------|
+| [context-engineering](skills/context-engineering/SKILL.md) | Feed agents the right information at the right time - rules files, context packing, MCP integrations | Starting a session, switching tasks, or when output quality drops |
+| [source-driven-development](skills/source-driven-development/SKILL.md) | Ground every framework decision in official documentation - verify, cite sources, flag what's unverified | You want authoritative, source-cited code for any framework or library |
+| [frontend-ui-engineering](skills/frontend-ui-engineering/SKILL.md) | Component architecture, design systems, state management, responsive design, WCAG 2.1 AA accessibility | Building or modifying user-facing interfaces |
+| [api-and-interface-design](skills/api-and-interface-design/SKILL.md) | Contract-first design, Hyrum's Law, One-Version Rule, error semantics, boundary validation | Designing APIs, module boundaries, or public interfaces |
+| [security-and-hardening](skills/security-and-hardening/SKILL.md) | OWASP Top 10 prevention, auth patterns, secrets management, dependency auditing, three-tier boundary system | Handling user input, auth, data storage, or external integrations |
+| [performance-optimization](skills/performance-optimization/SKILL.md) | Measure-first approach - Core Web Vitals targets, profiling workflows, bundle analysis, anti-pattern detection | Performance requirements exist or you suspect regressions |
+
+### Meta - Skill routing
+
+| Skill | What It Does | Use When |
+|-------|-------------|----------|
+| [using-td-harness](skills/using-td-harness/SKILL.md) | Meta-skill for routing tasks to the correct workflow | Starting a session or deciding which skill should be applied |
+
+---
+
+## Agent Personas
+
+Pre-configured specialist personas for targeted reviews:
+
+| Agent | Role | Perspective |
+|-------|------|-------------|
+| [code-reviewer](agents/code-reviewer.md) | Senior Staff Engineer | Five-axis code review with "would a staff engineer approve this?" standard |
+| [test-engineer](agents/test-engineer.md) | QA Specialist | Test strategy, coverage analysis, and the Prove-It pattern |
+| [security-auditor](agents/security-auditor.md) | Security Engineer | Vulnerability detection, threat modeling, OWASP assessment |
+
+---
+
+## Reference Checklists
+
+Quick-reference material that skills pull in when needed:
+
+| Reference | Covers |
+|-----------|--------|
+| [testing-patterns.md](references/testing-patterns.md) | Test structure, naming, mocking, React/API/E2E examples, anti-patterns |
+| [security-checklist.md](references/security-checklist.md) | Pre-commit checks, auth, input validation, headers, CORS, OWASP Top 10 |
+| [performance-checklist.md](references/performance-checklist.md) | Core Web Vitals targets, frontend/backend checklists, measurement commands |
+| [accessibility-checklist.md](references/accessibility-checklist.md) | Keyboard nav, screen readers, visual design, ARIA, testing tools |
+
+---
+
+## How Skills Work
+
+Every skill follows a consistent anatomy:
+
+```
+┌─────────────────────────────────────────────────┐
+│  SKILL.md                                       │
+│                                                 │
+│  ┌─ Frontmatter ─────────────────────────────┐  │
+│  │ name: lowercase-hyphen-name               │  │
+│  │ description: Guides agents through [task].│  │
+│  │              Use when…                    │  │
+│  └───────────────────────────────────────────┘  │                                                                                                
+│  Overview         → What this skill does        │
+│  When to Use      → Triggering conditions       │
+│  Process          → Step-by-step workflow       │
+│  Rationalizations → Excuses + rebuttals         │
+│  Red Flags        → Signs something's wrong     │
+│  Verification     → Evidence requirements       │
+└─────────────────────────────────────────────────┘
+```
+
+**Key design choices:**
+
+- **Process, not prose.** Skills are workflows agents follow, not reference docs they read. Each has steps, checkpoints, and exit criteria.
+- **Anti-rationalization.** Every skill includes a table of common excuses agents use to skip steps (e.g., "I'll add tests later") with documented counter-arguments.
+- **Verification is non-negotiable.** Every skill ends with evidence requirements - tests passing, build output, runtime data. "Seems right" is never sufficient.
+- **Progressive disclosure.** The `SKILL.md` is the entry point. Supporting references load only when needed, keeping token usage minimal.
+
+---
+
+## Project Structure
+
+```
+td-harness/
+├── skills/                            # 10 core skills (SKILL.md per directory)
+│   ├── test-driven-development/       #   Core workflow
+│   ├── code-review-and-quality/       #   Core workflow
+│   ├── code-simplification/           #   Core workflow
+│   ├── context-engineering/           #   Optional domain
+│   ├── source-driven-development/     #   Optional domain
+│   ├── frontend-ui-engineering/       #   Optional domain
+│   ├── api-and-interface-design/      #   Optional domain
+│   ├── security-and-hardening/        #   Optional domain
+│   ├── performance-optimization/      #   Optional domain
+│   └── using-td-harness/              #   Meta: how to use this pack
+├── agents/                            # 3 specialist personas
+├── references/                        # 4 supplementary checklists
+├── hooks/                             # Session lifecycle hooks
+├── .claude/commands/                  # 3 slash commands
+└── docs/                              # Setup guides per tool
+```
+
+---
+
+## Why TD Harness?
+
+AI coding agents default to the shortest path - which often means skipping tests, security reviews, and the practices that make software reliable. TD Harness gives agents structured workflows that enforce the same discipline senior engineers bring to production code.
+
+Each skill encodes hard-won engineering judgment: *how* to implement safely, *what* to test, and *how* to review. These aren't generic prompts - they're the kind of opinionated, process-driven workflows that separate production-quality work from prototype-quality work.
+
+Skills bake in best practices from Google's engineering culture — including concepts from [Software Engineering at Google](https://abseil.io/resources/swe-book) and Google's [engineering practices guide](https://google.github.io/eng-practices/). You'll find Hyrum's Law in API design, the Beyonce Rule and test pyramid in testing, change sizing and review speed norms in code review, and Chesterton's Fence in simplification. These aren't abstract principles — they're embedded directly into the step-by-step workflows agents follow.
+
+---
+
+## Contributing
+
+Skills should be **specific** (actionable steps, not vague advice), **verifiable** (clear exit criteria with evidence requirements), **battle-tested** (based on real workflows), and **minimal** (only what's needed to guide the agent).
+
+See [docs/skill-anatomy.md](docs/skill-anatomy.md) for the format specification and [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+---
+
+## License
+
+MIT - use these skills in your projects, teams, and tools.
