@@ -77,6 +77,9 @@ SKIPPED_FILE="$HARNESS_DIR/skipped.txt"
 DEPENDENCY_NOTES_RUNTIME="$HARNESS_DIR/dependency-runtime-notes.txt"
 REQUIREMENTS_PATH="$HARNESS_DIR/requirements.txt"
 DEPENDENCY_NOTES_PATH="$HARNESS_DIR/dependency-notes.md"
+BACKEND_STACK="none"
+HAS_FRONTEND_STACK=0
+STACK_PROFILE="unknown"
 
 mkdir -p "$HARNESS_DIR" "$RAW_DIR"
 : > "$TOOLS_FILE"
@@ -211,7 +214,48 @@ project_package_manager() {
   fi
 }
 
+has_frontend_markers() {
+  [ -f "$ROOT/package.json" ]
+}
+
+has_go_markers() {
+  [ -f "$ROOT/go.mod" ]
+}
+
+has_java_markers() {
+  [ -f "$ROOT/pom.xml" ]
+}
+
+determine_stack_profile() {
+  BACKEND_STACK="none"
+  HAS_FRONTEND_STACK=0
+  STACK_PROFILE="unknown"
+
+  if has_frontend_markers; then
+    HAS_FRONTEND_STACK=1
+  fi
+
+  if has_java_markers; then
+    BACKEND_STACK="java"
+  elif has_python_files; then
+    BACKEND_STACK="python"
+  elif has_go_markers; then
+    BACKEND_STACK="go"
+  fi
+
+  if [ "$BACKEND_STACK" != "none" ] && [ "$HAS_FRONTEND_STACK" -eq 1 ]; then
+    STACK_PROFILE="$BACKEND_STACK+frontend"
+  elif [ "$BACKEND_STACK" != "none" ]; then
+    STACK_PROFILE="$BACKEND_STACK"
+  elif [ "$HAS_FRONTEND_STACK" -eq 1 ]; then
+    STACK_PROFILE="nodejs+frontend"
+  fi
+}
+
 prepare_python_dependencies() {
+  if [ "$BACKEND_STACK" != "python" ]; then
+    return 0
+  fi
   if ! has_python_files; then
     return 0
   fi
@@ -313,7 +357,7 @@ write_dependency_notes() {
 }
 
 discover_tools() {
-  if [ -f "$ROOT/package.json" ]; then
+  if [ "$HAS_FRONTEND_STACK" -eq 1 ]; then
     if pm="$(project_package_manager)"; then
       for script_name in lint typecheck type-check check:types format:check prettier:check stylelint; do
         if package_script_exists "$script_name"; then
@@ -321,17 +365,17 @@ discover_tools() {
           if forbidden_script "$body"; then
             add_skipped "package script '$script_name' skipped because it appears to include security/audit scanning"
           else
-            add_tool "Node $script_name" 0 "package $script_name script" $pm "$script_name"
+            add_tool "Node $script_name" 0 "stack profile includes frontend; package $script_name script" $pm "$script_name"
           fi
         fi
       done
     else
-      add_skipped "package.json found, but no npm/yarn/pnpm command is available"
+      add_skipped "Frontend stack detected (package.json found), but no npm/yarn/pnpm command is available"
     fi
 
     if [ -x "$ROOT/node_modules/.bin/tsc" ] && [ -f "$ROOT/tsconfig.json" ]; then
       if ! grep -q '^Node type' "$TOOLS_FILE" && ! grep -q '^Node check:types' "$TOOLS_FILE"; then
-        add_tool "TypeScript compiler" 0 "local tsc with tsconfig.json" "$ROOT/node_modules/.bin/tsc" --noEmit
+        add_tool "TypeScript compiler" 0 "stack profile includes frontend; local tsc with tsconfig.json" "$ROOT/node_modules/.bin/tsc" --noEmit
       fi
     fi
 
@@ -340,7 +384,7 @@ discover_tools() {
       [ -f "$ROOT/$config" ] && eslint_config_found=1
     done
     if [ "$eslint_config_found" -eq 1 ] && [ -x "$ROOT/node_modules/.bin/eslint" ] && ! grep -q '^Node lint' "$TOOLS_FILE"; then
-      add_tool "ESLint" 0 "local eslint config" "$ROOT/node_modules/.bin/eslint" .
+      add_tool "ESLint" 0 "stack profile includes frontend; local eslint config" "$ROOT/node_modules/.bin/eslint" .
     fi
 
     stylelint_config_found=0
@@ -348,48 +392,67 @@ discover_tools() {
       [ -f "$ROOT/$config" ] && stylelint_config_found=1
     done
     if [ "$stylelint_config_found" -eq 1 ] && [ -x "$ROOT/node_modules/.bin/stylelint" ]; then
-      add_tool "Stylelint" 0 "local stylelint config" "$ROOT/node_modules/.bin/stylelint" '**/*.{css,scss,less}'
+      add_tool "Stylelint" 0 "stack profile includes frontend; local stylelint config" "$ROOT/node_modules/.bin/stylelint" '**/*.{css,scss,less}'
     fi
   fi
 
-  if has_python_files; then
-    if ruff_path="$(python_tool ruff)"; then
-      add_tool "Ruff" 0 "ruff available" "$ruff_path" check .
-    else
-      add_skipped "Python files found, but Ruff is not available"
-    fi
-    if mypy_path="$(python_tool mypy)"; then
-      add_tool "mypy" 0 "mypy required for Python static analysis" "$mypy_path" .
-    else
-      add_skipped "Python files found, but mypy is not available"
-    fi
-    if { has_file ".pylintrc" || has_config_text pylint pyproject.toml setup.cfg tox.ini; } && pylint_path="$(python_tool pylint)"; then
-      add_tool "Pylint" 0 "pylint config found" "$pylint_path" .
-    fi
-    if { has_file "pyrightconfig.json" || has_config_text pyright pyproject.toml; } && pyright_path="$(python_tool pyright)"; then
-      add_tool "Pyright" 0 "pyright config found" "$pyright_path"
-    fi
-  fi
-
-  if [ -f "$ROOT/pom.xml" ]; then
-    if command_exists mvn; then
-      add_tool "Maven SpotBugs" 0 "pom.xml found; Java static analysis uses the explicit SpotBugs Maven plugin goal" mvn com.github.spotbugs:spotbugs-maven-plugin:spotbugs
-    else
-      add_skipped "pom.xml found, but mvn is not available"
-    fi
-  fi
-
-  if [ -f "$ROOT/go.mod" ]; then
-    if command_exists gofmt; then
-      add_tool "gofmt" 1 "Go formatting check" gofmt -l .
-    fi
-    if command_exists go; then
-      add_tool "go vet" 0 "Go vet quality analysis" go vet ./...
-    fi
-    if command_exists staticcheck; then
-      add_tool "Staticcheck" 0 "Staticcheck available" staticcheck ./...
-    fi
-  fi
+  case "$BACKEND_STACK" in
+    java)
+      if has_python_files; then
+        add_skipped "Python files detected, but backend stack is Java (pom.xml present)."
+      fi
+      if has_go_markers; then
+        add_skipped "go.mod detected, but backend stack is Java (pom.xml present)."
+      fi
+      if command_exists mvn; then
+        add_tool "Maven SpotBugs" 0 "backend stack java; run explicit SpotBugs Maven goal" mvn com.github.spotbugs:spotbugs-maven-plugin:spotbugs
+      else
+        add_skipped "Backend stack is Java (pom.xml found), but mvn is not available"
+      fi
+      ;;
+    python)
+      if has_go_markers; then
+        add_skipped "go.mod detected, but backend stack is Python."
+      fi
+      if ruff_path="$(python_tool ruff)"; then
+        add_tool "Ruff" 0 "backend stack python; ruff available" "$ruff_path" check .
+      else
+        add_skipped "Backend stack is Python, but Ruff is not available"
+      fi
+      if mypy_path="$(python_tool mypy)"; then
+        add_tool "mypy" 0 "backend stack python; mypy required for Python static analysis" "$mypy_path" .
+      else
+        add_skipped "Backend stack is Python, but mypy is not available"
+      fi
+      if { has_file ".pylintrc" || has_config_text pylint pyproject.toml setup.cfg tox.ini; } && pylint_path="$(python_tool pylint)"; then
+        add_tool "Pylint" 0 "backend stack python; pylint config found" "$pylint_path" .
+      fi
+      if { has_file "pyrightconfig.json" || has_config_text pyright pyproject.toml; } && pyright_path="$(python_tool pyright)"; then
+        add_tool "Pyright" 0 "backend stack python; pyright config found" "$pyright_path"
+      fi
+      ;;
+    go)
+      if has_python_files; then
+        add_skipped "Python files detected, but backend stack is Go."
+      fi
+      if command_exists gofmt; then
+        add_tool "gofmt" 1 "backend stack go; formatting check" gofmt -l .
+      fi
+      if command_exists go; then
+        add_tool "go vet" 0 "backend stack go; vet quality analysis" go vet ./...
+      else
+        add_skipped "Backend stack is Go (go.mod found), but go is not available"
+      fi
+      if command_exists staticcheck; then
+        add_tool "Staticcheck" 0 "backend stack go; staticcheck available" staticcheck ./...
+      fi
+      ;;
+    *)
+      if [ "$HAS_FRONTEND_STACK" -eq 0 ]; then
+        add_skipped "No supported stack marker detected (expected pom.xml, Python source files, package.json, or go.mod)."
+      fi
+      ;;
+  esac
 }
 
 truncate_output() {
@@ -952,6 +1015,7 @@ render_report() {
     <h1>Static Code Analysis Report</h1>
     <div class="meta">
       <div><strong>Project:</strong> <code>$(printf '%s' "$ROOT" | html_escape)</code></div>
+      <div><strong>Detected stack profile:</strong> <code>$(printf '%s' "$STACK_PROFILE" | html_escape)</code></div>
       <div><strong>Harness directory:</strong> <code>$(printf '%s' "$HARNESS_DIR" | html_escape)</code></div>
       <div><strong>Generated:</strong> $(printf '%s' "$generated" | html_escape)</div>
     </div>
@@ -981,6 +1045,7 @@ HTML
   } > "$REPORT_PATH"
 }
 
+determine_stack_profile
 prepare_python_dependencies
 discover_tools
 run_tools

@@ -11,7 +11,11 @@ Run non-security static code checks and produce one HTML report at `harness/stat
 
 This skill is intentionally scoped to code quality only. Do not run security scanners, secret scanners, dependency vulnerability tools, SAST tools, license scanners, or audit commands.
 
-Only Python projects may execute Python tooling. Non-Python projects, including Java, frontend, and Go projects, must not invoke `python3`, Python scripts, Python virtual environments, or pip.
+Only projects whose backend stack is Python may execute Python tooling. Other stack combinations, including Java+frontend and Go+frontend, must not invoke `python3`, Python scripts, Python virtual environments, or pip.
+
+Detect stacks as `backend + optional frontend`:
+- backend priority: `pom.xml` -> Java, else Python source files -> Python, else `go.mod` -> Go, else none.
+- frontend is additive when `package.json` exists.
 
 ## Workflow
 

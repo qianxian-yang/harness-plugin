@@ -8,6 +8,15 @@ Only run tools that inspect source code quality without looking for security vul
 
 If a tool can run both quality and security checks, use only the quality mode. If the mode is ambiguous, do not run it.
 
+## Stack Profile Rule
+
+Treat the project as `backend + optional frontend`.
+
+- Backend priority: if `pom.xml` exists, backend is Java; otherwise Python source files; otherwise `go.mod`; otherwise no backend.
+- Frontend is additive when `package.json` exists.
+- Valid profiles include `java+frontend`, `python+frontend`, `go+frontend`, `nodejs+frontend`, and backend-only variants.
+- When backend priority chooses Java, ignore Python/Go backend markers and note that in skipped/context notes.
+
 ## Default Tool Map
 
 | Stack | Run when available | Notes |
@@ -19,7 +28,7 @@ If a tool can run both quality and security checks, use only the quality mode. I
 
 ## Python Execution Boundary
 
-Only projects with Python source files may execute Python tooling. For non-Python projects, including Java, frontend, and Go projects, do not invoke `python3`, Python scripts, Python virtual environments, or pip. Report generation must still succeed without Python.
+Only projects whose selected backend is Python may execute Python tooling. For non-Python backend profiles, including Java+frontend, Go+frontend, and nodejs+frontend, do not invoke `python3`, Python scripts, Python virtual environments, or pip. Report generation must still succeed without Python.
 
 ## High-Priority Defects
 
