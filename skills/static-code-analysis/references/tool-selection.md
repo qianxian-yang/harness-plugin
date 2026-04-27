@@ -13,7 +13,7 @@ If a tool can run both quality and security checks, use only the quality mode. I
 | Stack | Run when available | Notes |
 |---|---|---|
 | JavaScript / TypeScript | `lint`, `typecheck`, `format:check`, `prettier:check` package scripts; local `tsc --noEmit`; local `eslint`; local `stylelint` | Prefer project scripts because they encode local conventions. |
-| Python | Ruff, Flake8, Pylint, mypy, Pyright | Run type checkers when config is present. If missing, generate `harness/static-analysis/requirements.txt` and install quality-only Python tools into `harness/static-analysis/.venv`. |
+| Python | Ruff, mypy, optionally Pylint and Pyright | Always run Ruff and mypy for Python projects. Run Pylint and Pyright when config is present. If missing, generate `harness/report/static-analysis/requirements.txt` and install quality-only Python tools into `harness/report/static-analysis/.venv`. |
 | Java / Maven | `mvn com.github.spotbugs:spotbugs-maven-plugin:spotbugs` | Run this exact Maven goal when `pom.xml` is present. Do not run Checkstyle, PMD, Gradle tasks, or other Java static-analysis commands from this skill. |
 | Go | `gofmt -l`, `go vet`, Staticcheck | Treat unformatted files from `gofmt -l` as high-priority quality failures. |
 
@@ -34,7 +34,7 @@ Do not promote ordinary warnings to high priority unless the project config fail
 
 ## Harness Location Expectations
 
-Write all run artifacts under the target project's `harness/static-analysis/` directory by default:
+Write all run artifacts under the target project's `harness/report/static-analysis/` directory by default:
 
 - `static-analysis-report.html` for the self-contained HTML report.
 - `requirements.txt` when Python quality tools need installation.
