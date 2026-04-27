@@ -9,10 +9,7 @@
   "plugins": [
     {
       "name": "harness-skills",
-      "source": {
-        "source": "git@gitlab.tongdun.cn",
-        "repo": "skills/harness-skills"
-      },
+      "source": "./",
       "description": "Production-grade engineering skills covering every phase of software development: spec, plan, build, verify, review, and ship."
     }
   ]
