@@ -1,0 +1,4 @@
+interface:
+  display_name: "Static Code Analysis"
+  short_description: "Run quality static checks and render HTML reports"
+  default_prompt: "Use $static-code-analysis to run quality-focused static code checks and produce an HTML report."
