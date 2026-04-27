@@ -226,6 +226,37 @@ has_java_markers() {
   [ -f "$ROOT/pom.xml" ]
 }
 
+detect_java_major() {
+  local version_line
+  local version_token
+  local major
+
+  if ! command_exists java; then
+    return 1
+  fi
+
+  version_line="$(java -version 2>&1 | head -n 1)"
+  version_token="$(printf '%s' "$version_line" | sed -nE 's/.*version "([^"]+)".*/\1/p')"
+  if [ -z "$version_token" ]; then
+    version_token="$(printf '%s' "$version_line" | sed -nE 's/.*openjdk ([0-9][^ ]*).*/\1/p')"
+  fi
+  if [ -z "$version_token" ]; then
+    return 1
+  fi
+
+  if echo "$version_token" | grep -Eq '^1\.[0-9]+'; then
+    major="$(printf '%s' "$version_token" | sed -E 's/^1\.([0-9]+).*/\1/')"
+  else
+    major="$(printf '%s' "$version_token" | sed -E 's/^([0-9]+).*/\1/')"
+  fi
+
+  if echo "$major" | grep -Eq '^[0-9]+$'; then
+    echo "$major"
+    return 0
+  fi
+  return 1
+}
+
 determine_stack_profile() {
   BACKEND_STACK="none"
   HAS_FRONTEND_STACK=0
@@ -398,6 +429,8 @@ discover_tools() {
 
   case "$BACKEND_STACK" in
     java)
+      java_major=""
+      spotbugs_version="4.9.8.3"
       if has_python_files; then
         add_skipped "Python files detected, but backend stack is Java (pom.xml present)."
       fi
@@ -405,7 +438,18 @@ discover_tools() {
         add_skipped "go.mod detected, but backend stack is Java (pom.xml present)."
       fi
       if command_exists mvn; then
-        add_tool "Maven SpotBugs" 0 "backend stack java; run explicit SpotBugs Maven goal" mvn com.github.spotbugs:spotbugs-maven-plugin:spotbugs
+        add_tool "Maven Build (skip tests)" 0 "backend stack java; required pre-step before SpotBugs" mvn -B clean install -DskipTests -U
+
+        java_major="$(detect_java_major || true)"
+        if [ -n "$java_major" ] && [ "$java_major" -le 8 ]; then
+          spotbugs_version="4.7.3.6"
+        fi
+        if [ -z "$java_major" ]; then
+          add_skipped "Could not detect Java major version; defaulting SpotBugs plugin to 4.9.8.3 (>8 path)."
+          add_tool "Maven SpotBugs" 0 "backend stack java; java version unknown, default SpotBugs 4.9.8.3" mvn com.github.spotbugs:spotbugs-maven-plugin:4.9.8.3:spotbugs
+        else
+          add_tool "Maven SpotBugs" 0 "backend stack java; java $java_major uses SpotBugs $spotbugs_version" mvn com.github.spotbugs:spotbugs-maven-plugin:$spotbugs_version:spotbugs
+        fi
       else
         add_skipped "Backend stack is Java (pom.xml found), but mvn is not available"
       fi

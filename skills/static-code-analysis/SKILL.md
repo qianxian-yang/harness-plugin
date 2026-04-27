@@ -54,7 +54,7 @@ Allowed examples:
 
 - JavaScript/TypeScript: ESLint, TypeScript `tsc --noEmit`, Prettier check, Stylelint.
 - Python: Ruff and mypy are always required for Python projects. Pylint and Pyright run when configured. Missing Python quality tools may be written to `harness/static-analysis/requirements.txt` and installed automatically into `harness/static-analysis/.venv`.
-- Java: only `mvn com.github.spotbugs:spotbugs-maven-plugin:spotbugs` when `pom.xml` is present.
+- Java: run `mvn -B clean install -DskipTests -U` first. Then run SpotBugs with version by Java major: `>8` uses `mvn com.github.spotbugs:spotbugs-maven-plugin:4.9.8.3:spotbugs`, `<=8` uses `mvn com.github.spotbugs:spotbugs-maven-plugin:4.7.3.6:spotbugs`.
 - Go: `gofmt -l`, `go vet`, Staticcheck when already installed.
 
 Forbidden examples:

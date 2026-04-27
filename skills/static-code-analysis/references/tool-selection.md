@@ -23,7 +23,7 @@ Treat the project as `backend + optional frontend`.
 |---|---|---|
 | JavaScript / TypeScript | `lint`, `typecheck`, `format:check`, `prettier:check` package scripts; local `tsc --noEmit`; local `eslint`; local `stylelint` | Prefer project scripts because they encode local conventions. |
 | Python | Ruff, mypy, optionally Pylint and Pyright | Always run Ruff and mypy for Python projects. Run Pylint and Pyright when config is present. If missing, generate `harness/static-analysis/requirements.txt` and install quality-only Python tools into `harness/static-analysis/.venv`. |
-| Java / Maven | `mvn com.github.spotbugs:spotbugs-maven-plugin:spotbugs` | Run this exact Maven goal when `pom.xml` is present. Do not run Checkstyle, PMD, Gradle tasks, or other Java static-analysis commands from this skill. |
+| Java / Maven | `mvn -B clean install -DskipTests -U`, then SpotBugs | When `pom.xml` is present, run build first, then SpotBugs by Java major: `>8` use `com.github.spotbugs:spotbugs-maven-plugin:4.9.8.3:spotbugs`, `<=8` use `com.github.spotbugs:spotbugs-maven-plugin:4.7.3.6:spotbugs`. |
 | Go | `gofmt -l`, `go vet`, Staticcheck | Treat unformatted files from `gofmt -l` as high-priority quality failures. |
 
 ## Python Execution Boundary
