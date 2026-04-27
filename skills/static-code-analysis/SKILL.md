@@ -15,7 +15,7 @@ Only projects whose backend stack is Python may execute Python tooling. Other st
 
 Detect stacks as `backend + optional frontend`:
 - backend priority: `pom.xml` -> Java, else `go.mod` -> Go, else `requirements*.txt` -> Python, else none.
-- frontend is additive when `package.json` exists.
+- frontend is additive when a directory has `package.json` and frontend source files (`.ts`, `.tsx`, `.js`, `.jsx`, `.css`, `.less`, `.scss`) exist under the project root or that directory.
 
 ## Workflow
 

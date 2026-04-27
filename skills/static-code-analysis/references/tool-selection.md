@@ -13,7 +13,7 @@ If a tool can run both quality and security checks, use only the quality mode. I
 Treat the project as `backend + optional frontend`.
 
 - Backend priority: if `pom.xml` exists, backend is Java; otherwise `go.mod`; otherwise `requirements*.txt`; otherwise no backend.
-- Frontend is additive when `package.json` exists.
+- Frontend is additive when root or subdirectory `package.json` is present and frontend source files (`.ts`, `.tsx`, `.js`, `.jsx`, `.css`, `.less`, `.scss`) exist under the project root or that package directory.
 - Valid profiles include `java+frontend`, `python+frontend`, `go+frontend`, `nodejs+frontend`, and backend-only variants.
 - When backend priority chooses Java, ignore Python/Go backend markers and note that in skipped/context notes.
 

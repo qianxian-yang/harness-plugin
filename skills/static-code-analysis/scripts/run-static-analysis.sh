@@ -73,6 +73,7 @@ FINDINGS_FILE="$HARNESS_DIR/findings.html"
 FINDINGS_DATA_FILE="$HARNESS_DIR/findings.tsv"
 SUMMARY_FILE="$HARNESS_DIR/summary.html"
 RAW_SECTIONS_FILE="$HARNESS_DIR/raw-sections.html"
+FRONTEND_DIRS_FILE="$HARNESS_DIR/frontend-dirs.txt"
 SKIPPED_FILE="$HARNESS_DIR/skipped.txt"
 DEPENDENCY_NOTES_RUNTIME="$HARNESS_DIR/dependency-runtime-notes.txt"
 REQUIREMENTS_PATH="$HARNESS_DIR/requirements.txt"
@@ -89,6 +90,7 @@ mkdir -p "$HARNESS_DIR" "$RAW_DIR"
 : > "$FINDINGS_DATA_FILE"
 : > "$SUMMARY_FILE"
 : > "$RAW_SECTIONS_FILE"
+: > "$FRONTEND_DIRS_FILE"
 : > "$SKIPPED_FILE"
 : > "$DEPENDENCY_NOTES_RUNTIME"
 
@@ -134,6 +136,13 @@ has_python_requirements() {
     -o -type f -name 'requirements*.txt' -print -quit | grep -q .
 }
 
+has_frontend_source_under() {
+  scan_dir="$1"
+  find "$scan_dir" \
+    \( -name .git -o -name node_modules -o -name .venv -o -name venv -o -name target -o -name build -o -name dist -o -name __pycache__ -o -path "$ROOT/harness" \) -prune \
+    -o -type f \( -name '*.ts' -o -name '*.tsx' -o -name '*.js' -o -name '*.jsx' -o -name '*.css' -o -name '*.less' -o -name '*.scss' \) -print -quit | grep -q .
+}
+
 has_file() {
   [ -f "$ROOT/$1" ]
 }
@@ -174,10 +183,11 @@ python_tool() {
 
 package_script_body() {
   script_name="$1"
-  if [ ! -f "$ROOT/package.json" ]; then
+  target_dir="${2:-$ROOT}"
+  if [ ! -f "$target_dir/package.json" ]; then
     return 1
   fi
-  tr '\n' ' ' < "$ROOT/package.json" \
+  tr '\n' ' ' < "$target_dir/package.json" \
     | sed -E "s/(\"$script_name\"[[:space:]]*:[[:space:]]*\")/\\
 \1/g" \
     | sed -nE "s/^[[:space:]]*\"$script_name\"[[:space:]]*:[[:space:]]*\"([^\"]*)\".*$/\1/p" \
@@ -185,7 +195,9 @@ package_script_body() {
 }
 
 package_script_exists() {
-  [ -n "$(package_script_body "$1")" ]
+  script_name="$1"
+  target_dir="${2:-$ROOT}"
+  [ -n "$(package_script_body "$script_name" "$target_dir")" ]
 }
 
 forbidden_script() {
@@ -209,9 +221,10 @@ add_tool() {
 }
 
 project_package_manager() {
-  if [ -f "$ROOT/pnpm-lock.yaml" ] && command_exists pnpm; then
+  target_dir="${1:-$ROOT}"
+  if [ -f "$target_dir/pnpm-lock.yaml" ] && command_exists pnpm; then
     echo "pnpm run"
-  elif [ -f "$ROOT/yarn.lock" ] && command_exists yarn; then
+  elif [ -f "$target_dir/yarn.lock" ] && command_exists yarn; then
     echo "yarn run"
   elif command_exists npm; then
     echo "npm run"
@@ -220,8 +233,35 @@ project_package_manager() {
   fi
 }
 
-has_frontend_markers() {
-  [ -f "$ROOT/package.json" ]
+detect_frontend_dirs() {
+  local root_has_frontend=0
+  local package_file_list="$HARNESS_DIR/frontend-package-json.txt"
+  local package_json_path
+  local package_dir
+
+  : > "$FRONTEND_DIRS_FILE"
+  : > "$package_file_list"
+
+  if has_frontend_source_under "$ROOT"; then
+    root_has_frontend=1
+  fi
+
+  find "$ROOT" \
+    \( -name .git -o -name node_modules -o -name .venv -o -name venv -o -name target -o -name build -o -name dist -o -name __pycache__ -o -path "$ROOT/harness" \) -prune \
+    -o -type f -name 'package.json' -print > "$package_file_list"
+
+  while IFS= read -r package_json_path || [ -n "$package_json_path" ]; do
+    [ -z "$package_json_path" ] && continue
+    package_dir="$(dirname "$package_json_path")"
+    if has_frontend_source_under "$package_dir" || [ "$root_has_frontend" -eq 1 ]; then
+      printf '%s\n' "$package_dir" >> "$FRONTEND_DIRS_FILE"
+    fi
+  done < "$package_file_list"
+
+  if [ -s "$FRONTEND_DIRS_FILE" ]; then
+    sort -u "$FRONTEND_DIRS_FILE" > "$FRONTEND_DIRS_FILE.tmp"
+    mv "$FRONTEND_DIRS_FILE.tmp" "$FRONTEND_DIRS_FILE"
+  fi
 }
 
 has_go_markers() {
@@ -268,7 +308,8 @@ determine_stack_profile() {
   HAS_FRONTEND_STACK=0
   STACK_PROFILE="unknown"
 
-  if has_frontend_markers; then
+  detect_frontend_dirs
+  if [ -s "$FRONTEND_DIRS_FILE" ]; then
     HAS_FRONTEND_STACK=1
   fi
 
@@ -395,42 +436,57 @@ write_dependency_notes() {
 
 discover_tools() {
   if [ "$HAS_FRONTEND_STACK" -eq 1 ]; then
-    if pm="$(project_package_manager)"; then
-      for script_name in lint typecheck type-check check:types format:check prettier:check stylelint; do
-        if package_script_exists "$script_name"; then
-          body="$(package_script_body "$script_name")"
-          if forbidden_script "$body"; then
-            add_skipped "package script '$script_name' skipped because it appears to include security/audit scanning"
-          else
-            add_tool "Node $script_name" 0 "stack profile includes frontend; package $script_name script" $pm "$script_name"
-          fi
-        fi
-      done
-    else
-      add_skipped "Frontend stack detected (package.json found), but no npm/yarn/pnpm command is available"
-    fi
-
-    if [ -x "$ROOT/node_modules/.bin/tsc" ] && [ -f "$ROOT/tsconfig.json" ]; then
-      if ! grep -q '^Node type' "$TOOLS_FILE" && ! grep -q '^Node check:types' "$TOOLS_FILE"; then
-        add_tool "TypeScript compiler" 0 "stack profile includes frontend; local tsc with tsconfig.json" "$ROOT/node_modules/.bin/tsc" --noEmit
+    while IFS= read -r frontend_dir || [ -n "$frontend_dir" ]; do
+      [ -z "$frontend_dir" ] && continue
+      relative_frontend_dir="${frontend_dir#$ROOT/}"
+      if [ "$frontend_dir" = "$ROOT" ]; then
+        frontend_label="root"
+      else
+        frontend_label="$relative_frontend_dir"
       fi
-    fi
 
-    eslint_config_found=0
-    for config in .eslintrc .eslintrc.js .eslintrc.cjs .eslintrc.json eslint.config.js eslint.config.mjs eslint.config.cjs; do
-      [ -f "$ROOT/$config" ] && eslint_config_found=1
-    done
-    if [ "$eslint_config_found" -eq 1 ] && [ -x "$ROOT/node_modules/.bin/eslint" ] && ! grep -q '^Node lint' "$TOOLS_FILE"; then
-      add_tool "ESLint" 0 "stack profile includes frontend; local eslint config" "$ROOT/node_modules/.bin/eslint" .
-    fi
+      if pm="$(project_package_manager "$frontend_dir")"; then
+        for script_name in lint typecheck type-check check:types format:check prettier:check stylelint; do
+          if package_script_exists "$script_name" "$frontend_dir"; then
+            body="$(package_script_body "$script_name" "$frontend_dir")"
+            if forbidden_script "$body"; then
+              add_skipped "package script '$script_name' in frontend dir '$frontend_label' skipped because it appears to include security/audit scanning"
+            else
+              q_frontend_dir="$(printf '%q' "$frontend_dir")"
+              add_tool "Node $script_name [$frontend_label]" 0 "frontend dir '$frontend_label' package $script_name script" "cd $q_frontend_dir && $pm $script_name"
+            fi
+          fi
+        done
+      else
+        add_skipped "Frontend dir '$frontend_label' detected (package.json), but no npm/yarn/pnpm command is available"
+      fi
 
-    stylelint_config_found=0
-    for config in .stylelintrc .stylelintrc.json .stylelintrc.js stylelint.config.js stylelint.config.cjs; do
-      [ -f "$ROOT/$config" ] && stylelint_config_found=1
-    done
-    if [ "$stylelint_config_found" -eq 1 ] && [ -x "$ROOT/node_modules/.bin/stylelint" ]; then
-      add_tool "Stylelint" 0 "stack profile includes frontend; local stylelint config" "$ROOT/node_modules/.bin/stylelint" '**/*.{css,scss,less}'
-    fi
+      if [ -x "$frontend_dir/node_modules/.bin/tsc" ] && [ -f "$frontend_dir/tsconfig.json" ]; then
+        q_frontend_dir="$(printf '%q' "$frontend_dir")"
+        q_tsc_bin="$(printf '%q' "$frontend_dir/node_modules/.bin/tsc")"
+        add_tool "TypeScript compiler [$frontend_label]" 0 "frontend dir '$frontend_label'; local tsc with tsconfig.json" "cd $q_frontend_dir && $q_tsc_bin --noEmit"
+      fi
+
+      eslint_config_found=0
+      for config in .eslintrc .eslintrc.js .eslintrc.cjs .eslintrc.json eslint.config.js eslint.config.mjs eslint.config.cjs; do
+        [ -f "$frontend_dir/$config" ] && eslint_config_found=1
+      done
+      if [ "$eslint_config_found" -eq 1 ] && [ -x "$frontend_dir/node_modules/.bin/eslint" ]; then
+        q_frontend_dir="$(printf '%q' "$frontend_dir")"
+        q_eslint_bin="$(printf '%q' "$frontend_dir/node_modules/.bin/eslint")"
+        add_tool "ESLint [$frontend_label]" 0 "frontend dir '$frontend_label'; local eslint config" "cd $q_frontend_dir && $q_eslint_bin ."
+      fi
+
+      stylelint_config_found=0
+      for config in .stylelintrc .stylelintrc.json .stylelintrc.js stylelint.config.js stylelint.config.cjs; do
+        [ -f "$frontend_dir/$config" ] && stylelint_config_found=1
+      done
+      if [ "$stylelint_config_found" -eq 1 ] && [ -x "$frontend_dir/node_modules/.bin/stylelint" ]; then
+        q_frontend_dir="$(printf '%q' "$frontend_dir")"
+        q_stylelint_bin="$(printf '%q' "$frontend_dir/node_modules/.bin/stylelint")"
+        add_tool "Stylelint [$frontend_label]" 0 "frontend dir '$frontend_label'; local stylelint config" "cd $q_frontend_dir && $q_stylelint_bin '**/*.{css,scss,less}'"
+      fi
+    done < "$FRONTEND_DIRS_FILE"
   fi
 
   case "$BACKEND_STACK" in
@@ -503,7 +559,7 @@ discover_tools() {
       ;;
     *)
       if [ "$HAS_FRONTEND_STACK" -eq 0 ]; then
-        add_skipped "No supported stack marker detected (expected pom.xml, go.mod, requirements*.txt, or package.json)."
+        add_skipped "No supported stack marker detected (expected pom.xml, go.mod, requirements*.txt, or frontend marker: package.json with frontend source files)."
       fi
       if has_python_files && ! has_python_requirements; then
         add_skipped "Python files detected without requirements*.txt; treated as scripts, not a Python backend project."
