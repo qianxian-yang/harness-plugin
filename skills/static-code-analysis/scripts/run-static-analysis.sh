@@ -67,8 +67,11 @@ ROOT="$(cd "$PROJECT_DIR" && pwd -P)"
 HARNESS_DIR="$ROOT/harness/static-analysis"
 RAW_DIR="$HARNESS_DIR/raw"
 TOOLS_FILE="$HARNESS_DIR/tools.tsv"
+TOOL_STATS_FILE="$HARNESS_DIR/tool-stats.tsv"
 TOOL_ROWS_FILE="$HARNESS_DIR/tool-rows.html"
 FINDINGS_FILE="$HARNESS_DIR/findings.html"
+FINDINGS_DATA_FILE="$HARNESS_DIR/findings.tsv"
+SUMMARY_FILE="$HARNESS_DIR/summary.html"
 RAW_SECTIONS_FILE="$HARNESS_DIR/raw-sections.html"
 SKIPPED_FILE="$HARNESS_DIR/skipped.txt"
 DEPENDENCY_NOTES_RUNTIME="$HARNESS_DIR/dependency-runtime-notes.txt"
@@ -77,8 +80,11 @@ DEPENDENCY_NOTES_PATH="$HARNESS_DIR/dependency-notes.md"
 
 mkdir -p "$HARNESS_DIR" "$RAW_DIR"
 : > "$TOOLS_FILE"
+: > "$TOOL_STATS_FILE"
 : > "$TOOL_ROWS_FILE"
 : > "$FINDINGS_FILE"
+: > "$FINDINGS_DATA_FILE"
+: > "$SUMMARY_FILE"
 : > "$RAW_SECTIONS_FILE"
 : > "$SKIPPED_FILE"
 : > "$DEPENDENCY_NOTES_RUNTIME"
@@ -442,53 +448,36 @@ suggestion_for() {
 }
 
 append_finding() {
-  local tool_name="$1"
-  local file_path="$2"
-  local line_no="$3"
-  local col_no="$4"
-  local message="$5"
-  local location
+  local tool_id="$1"
+  local tool_name="$2"
+  local file_path="$3"
+  local line_no="$4"
+  local col_no="$5"
+  local message="$6"
   local suggestion
-  local escaped_location
-  local escaped_tool
-  local escaped_message
-  local escaped_suggestion
+  local message_clean
+  local suggestion_clean
+  local tool_name_clean
+  local file_clean
 
   if [ "$FINDING_COUNT" -ge "$MAX_FINDINGS" ]; then
     return
   fi
 
   FINDING_COUNT=$((FINDING_COUNT + 1))
-  location="$file_path:$line_no"
-  if [ -n "$col_no" ]; then
-    location="$location:$col_no"
-  fi
   suggestion="$(suggestion_for "$tool_name")"
-  escaped_location="$(printf '%s' "$location" | html_escape)"
-  escaped_tool="$(printf '%s' "$tool_name" | html_escape)"
-  escaped_message="$(printf '%s' "$message" | html_escape)"
-  escaped_suggestion="$(printf '%s' "$suggestion" | html_escape)"
-
-  {
-    echo '<details class="finding">'
-    echo '  <summary>'
-    echo "    <strong>#$FINDING_COUNT $escaped_location</strong>"
-    echo "    <span class=\"finding-tool\">$escaped_tool</span>"
-    echo '  </summary>'
-    echo '  <div class="finding-body">'
-    echo "    <p class=\"message\">$escaped_message</p>"
-    echo "    <p><strong>Suggested fix:</strong> $escaped_suggestion</p>"
-    echo '    <div class="code">'
-    code_excerpt_html "$file_path" "$line_no"
-    echo '    </div>'
-    echo '  </div>'
-    echo '</details>'
-  } >> "$FINDINGS_FILE"
+  tool_name_clean="$(printf '%s' "$tool_name" | tr '\t\r\n' '   ')"
+  file_clean="$(printf '%s' "$file_path" | tr '\t\r\n' '   ')"
+  message_clean="$(printf '%s' "$message" | tr '\t\r\n' '   ')"
+  suggestion_clean="$(printf '%s' "$suggestion" | tr '\t\r\n' '   ')"
+  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+    "$tool_id" "$tool_name_clean" "$file_clean" "$line_no" "$col_no" "$message_clean" "$suggestion_clean" >> "$FINDINGS_DATA_FILE"
 }
 
 extract_findings() {
-  local tool_name="$1"
-  local output_file="$2"
+  local tool_id="$1"
+  local tool_name="$2"
+  local output_file="$3"
   local current_file=""
   local current_message=""
   local line
@@ -510,7 +499,7 @@ extract_findings() {
       col_no="$(echo "$stripped" | sed -E 's/^-->[[:space:]]+([^:]+):([0-9]+):([0-9]+).*$/\3/')"
       message="$current_message"
       [ -z "$message" ] && message="$stripped"
-      append_finding "$tool_name" "$file_path" "$line_no" "$col_no" "$message"
+      append_finding "$tool_id" "$tool_name" "$file_path" "$line_no" "$col_no" "$message"
       continue
     fi
 
@@ -524,7 +513,18 @@ extract_findings() {
       line_no="$(echo "$stripped" | sed -E 's/^([^[:space:]:\[]+\.[[:alnum:]]+)\(([0-9]+),([0-9]+)\):[[:space:]]*(.*)$/\2/')"
       col_no="$(echo "$stripped" | sed -E 's/^([^[:space:]:\[]+\.[[:alnum:]]+)\(([0-9]+),([0-9]+)\):[[:space:]]*(.*)$/\3/')"
       message="$(echo "$stripped" | sed -E 's/^([^[:space:]:\[]+\.[[:alnum:]]+)\(([0-9]+),([0-9]+)\):[[:space:]]*(.*)$/\4/')"
-      append_finding "$tool_name" "$file_path" "$line_no" "$col_no" "$message"
+      append_finding "$tool_id" "$tool_name" "$file_path" "$line_no" "$col_no" "$message"
+      continue
+    fi
+
+    if echo "$stripped" | grep -Eq '^(vet:[[:space:]]+)?([^[:space:]:\[]+\.(ts|tsx|js|jsx|mjs|cjs|css|scss|less|py|java|go|vue|svelte|xml|yaml|yml|json)):[0-9]+(:[0-9]+)?:[[:space:]]*(.*)$'; then
+      file_path="$(echo "$stripped" | sed -E 's/^(vet:[[:space:]]+)?([^[:space:]:\[]+\.[[:alnum:]]+):([0-9]+)(:([0-9]+))?:[[:space:]]*(.*)$/\2/')"
+      line_no="$(echo "$stripped" | sed -E 's/^(vet:[[:space:]]+)?([^[:space:]:\[]+\.[[:alnum:]]+):([0-9]+)(:([0-9]+))?:[[:space:]]*(.*)$/\3/')"
+      col_no="$(echo "$stripped" | sed -E 's/^(vet:[[:space:]]+)?([^[:space:]:\[]+\.[[:alnum:]]+):([0-9]+)(:([0-9]+))?:[[:space:]]*(.*)$/\5/')"
+      message="$(echo "$stripped" | sed -E 's/^(vet:[[:space:]]+)?([^[:space:]:\[]+\.[[:alnum:]]+):([0-9]+)(:([0-9]+))?:[[:space:]]*(.*)$/\6/')"
+      if [ "$tool_name" = "go vet" ] || echo "$message $stripped" | grep -Eiq '\b(error|fatal|failed|failure|TS[0-9]{4}|[EF][0-9]{3,4})\b'; then
+        append_finding "$tool_id" "$tool_name" "$file_path" "$line_no" "$col_no" "$message"
+      fi
       continue
     fi
 
@@ -533,8 +533,8 @@ extract_findings() {
       line_no="$(echo "$stripped" | sed -E 's/^([^[:space:]:\[]+\.[[:alnum:]]+):([0-9]+)(:([0-9]+))?:[[:space:]]*(.*)$/\2/')"
       col_no="$(echo "$stripped" | sed -E 's/^([^[:space:]:\[]+\.[[:alnum:]]+):([0-9]+)(:([0-9]+))?:[[:space:]]*(.*)$/\4/')"
       message="$(echo "$stripped" | sed -E 's/^([^[:space:]:\[]+\.[[:alnum:]]+):([0-9]+)(:([0-9]+))?:[[:space:]]*(.*)$/\5/')"
-      if echo "$message $stripped" | grep -Eiq '\b(error|fatal|failed|failure|TS[0-9]{4}|[EF][0-9]{3,4})\b'; then
-        append_finding "$tool_name" "$file_path" "$line_no" "$col_no" "$message"
+      if [ "$tool_name" = "go vet" ] || echo "$message $stripped" | grep -Eiq '\b(error|fatal|failed|failure|TS[0-9]{4}|[EF][0-9]{3,4})\b'; then
+        append_finding "$tool_id" "$tool_name" "$file_path" "$line_no" "$col_no" "$message"
       fi
       continue
     fi
@@ -543,9 +543,179 @@ extract_findings() {
       line_no="$(echo "$stripped" | sed -E 's/^([0-9]+):([0-9]+)[[:space:]]+error[[:space:]]+(.*)$/\1/')"
       col_no="$(echo "$stripped" | sed -E 's/^([0-9]+):([0-9]+)[[:space:]]+error[[:space:]]+(.*)$/\2/')"
       message="$(echo "$stripped" | sed -E 's/^([0-9]+):([0-9]+)[[:space:]]+error[[:space:]]+(.*)$/error \3/')"
-      append_finding "$tool_name" "$current_file" "$line_no" "$col_no" "$message"
+      append_finding "$tool_id" "$tool_name" "$current_file" "$line_no" "$col_no" "$message"
     fi
   done < "$output_file"
+}
+
+build_summary_html() {
+  local tools_with_issues=0
+  local tools_without_issues=0
+  local has_dependency_notes=0
+  local has_skipped_notes=0
+  local tool_id
+  local tool_name
+  local command_text
+  local duration
+  local issue_count
+  local exit_code
+  local escaped_tool_name
+
+  : > "$SUMMARY_FILE"
+
+  {
+    echo '<div class="panel">'
+    echo '  <h3>High-Priority Summary by Tool</h3>'
+    echo '  <div class="summary-groups">'
+    echo '    <section class="summary-group">'
+    echo '      <h4>Tools with high-priority defects</h4>'
+    echo '      <ul>'
+  } >> "$SUMMARY_FILE"
+
+  while IFS="$(printf '\t')" read -r tool_id tool_name command_text duration issue_count exit_code || [ -n "$tool_id" ]; do
+    [ -z "$tool_id" ] && continue
+    if [ "${issue_count:-0}" -gt 0 ]; then
+      tools_with_issues=$((tools_with_issues + 1))
+      escaped_tool_name="$(printf '%s' "$tool_name" | html_escape)"
+      echo "        <li><a class=\"issue-link\" href=\"#$tool_id\">$escaped_tool_name</a>: ${issue_count} high-priority defects</li>" >> "$SUMMARY_FILE"
+    fi
+  done < "$TOOL_STATS_FILE"
+
+  if [ "$tools_with_issues" -eq 0 ]; then
+    echo '        <li class="muted">No high-priority defects detected.</li>' >> "$SUMMARY_FILE"
+  fi
+
+  {
+    echo '      </ul>'
+    echo '    </section>'
+    echo '    <section class="summary-group">'
+    echo '      <h4>Tools without high-priority defects</h4>'
+    echo '      <ul>'
+  } >> "$SUMMARY_FILE"
+
+  while IFS="$(printf '\t')" read -r tool_id tool_name command_text duration issue_count exit_code || [ -n "$tool_id" ]; do
+    [ -z "$tool_id" ] && continue
+    if [ "${issue_count:-0}" -eq 0 ]; then
+      tools_without_issues=$((tools_without_issues + 1))
+      escaped_tool_name="$(printf '%s' "$tool_name" | html_escape)"
+      echo "        <li>$escaped_tool_name</li>" >> "$SUMMARY_FILE"
+    fi
+  done < "$TOOL_STATS_FILE"
+
+  if [ "$tools_without_issues" -eq 0 ]; then
+    echo '        <li class="muted">All executed tools reported high-priority defects.</li>' >> "$SUMMARY_FILE"
+  fi
+
+  {
+    echo '      </ul>'
+    echo '    </section>'
+    echo '  </div>'
+  } >> "$SUMMARY_FILE"
+
+  if [ -f "$REQUIREMENTS_PATH" ] || [ -f "$DEPENDENCY_NOTES_PATH" ] || [ -s "$DEPENDENCY_NOTES_RUNTIME" ]; then
+    has_dependency_notes=1
+  fi
+  if [ -s "$SKIPPED_FILE" ]; then
+    has_skipped_notes=1
+  fi
+
+  if [ "$has_dependency_notes" -eq 1 ] || [ "$has_skipped_notes" -eq 1 ]; then
+    echo '  <details class="context-notes">' >> "$SUMMARY_FILE"
+    echo '    <summary>Run Context Notes</summary>' >> "$SUMMARY_FILE"
+    echo '    <div class="note-body">' >> "$SUMMARY_FILE"
+    if [ "$has_dependency_notes" -eq 1 ]; then
+      echo '      <h4>Dependency Preparation</h4>' >> "$SUMMARY_FILE"
+      echo '      <ul>' >> "$SUMMARY_FILE"
+      [ -f "$REQUIREMENTS_PATH" ] && echo "        <li>Requirements: <code>$(printf '%s' "$REQUIREMENTS_PATH" | html_escape)</code></li>" >> "$SUMMARY_FILE"
+      [ -f "$DEPENDENCY_NOTES_PATH" ] && echo "        <li>Notes: <code>$(printf '%s' "$DEPENDENCY_NOTES_PATH" | html_escape)</code></li>" >> "$SUMMARY_FILE"
+      while IFS= read -r note || [ -n "$note" ]; do
+        [ -n "$note" ] && echo "        <li>$(printf '%s' "$note" | html_escape)</li>" >> "$SUMMARY_FILE"
+      done < "$DEPENDENCY_NOTES_RUNTIME"
+      echo '      </ul>' >> "$SUMMARY_FILE"
+    fi
+    if [ "$has_skipped_notes" -eq 1 ]; then
+      echo '      <h4>Skipped Detection Notes</h4>' >> "$SUMMARY_FILE"
+      echo '      <ul>' >> "$SUMMARY_FILE"
+      while IFS= read -r note || [ -n "$note" ]; do
+        [ -n "$note" ] && echo "        <li>$(printf '%s' "$note" | html_escape)</li>" >> "$SUMMARY_FILE"
+      done < "$SKIPPED_FILE"
+      echo '      </ul>' >> "$SUMMARY_FILE"
+    fi
+    echo '    </div>' >> "$SUMMARY_FILE"
+    echo '  </details>' >> "$SUMMARY_FILE"
+  fi
+
+  echo '</div>' >> "$SUMMARY_FILE"
+}
+
+build_findings_html() {
+  local tool_id
+  local tool_name
+  local command_text
+  local duration
+  local issue_count
+  local exit_code
+  local finding_tool_id
+  local finding_tool_name
+  local file_path
+  local line_no
+  local col_no
+  local message
+  local suggestion
+  local location
+  local escaped_tool
+  local escaped_location
+  local escaped_message
+  local escaped_suggestion
+  local shown_tools=0
+
+  : > "$FINDINGS_FILE"
+
+  while IFS="$(printf '\t')" read -r tool_id tool_name command_text duration issue_count exit_code || [ -n "$tool_id" ]; do
+    [ -z "$tool_id" ] && continue
+    [ "${issue_count:-0}" -le 0 ] && continue
+    shown_tools=$((shown_tools + 1))
+    escaped_tool="$(printf '%s' "$tool_name" | html_escape)"
+
+    {
+      echo "<section class=\"tool-findings\" id=\"$tool_id\">"
+      echo "  <h3>$escaped_tool</h3>"
+      echo "  <p class=\"muted\">${issue_count} high-priority defects</p>"
+    } >> "$FINDINGS_FILE"
+
+    while IFS="$(printf '\t')" read -r finding_tool_id finding_tool_name file_path line_no col_no message suggestion || [ -n "$finding_tool_id" ]; do
+      [ -z "$finding_tool_id" ] && continue
+      [ "$finding_tool_id" != "$tool_id" ] && continue
+      location="$file_path:$line_no"
+      if [ -n "$col_no" ]; then
+        location="$location:$col_no"
+      fi
+      escaped_location="$(printf '%s' "$location" | html_escape)"
+      escaped_message="$(printf '%s' "$message" | html_escape)"
+      escaped_suggestion="$(printf '%s' "$suggestion" | html_escape)"
+      {
+        echo '  <details class="finding">'
+        echo '    <summary>'
+        echo "      <strong>$escaped_location</strong>"
+        echo "      <span class=\"finding-tool\">$escaped_tool</span>"
+        echo '    </summary>'
+        echo '    <div class="finding-body">'
+        echo "      <p class=\"message\">$escaped_message</p>"
+        echo "      <p><strong>Suggested fix:</strong> $escaped_suggestion</p>"
+        echo '      <div class="code">'
+        code_excerpt_html "$file_path" "$line_no"
+        echo '      </div>'
+        echo '    </div>'
+        echo '  </details>'
+      } >> "$FINDINGS_FILE"
+    done < "$FINDINGS_DATA_FILE"
+
+    echo '</section>' >> "$FINDINGS_FILE"
+  done < "$TOOL_STATS_FILE"
+
+  if [ "$shown_tools" -eq 0 ]; then
+    echo '<p class="empty">No high-priority quality defects were detected.</p>' > "$FINDINGS_FILE"
+  fi
 }
 
 issue_card_html() {
@@ -626,6 +796,16 @@ build_parsed_output() {
       description="$(echo "$stripped" | sed -E 's/^([^[:space:]:\[]+\.[[:alnum:]]+):([0-9]+)(:([0-9]+))?:[[:space:]]*(.*)$/\5/')"
       rule="$(echo "$description" | sed -nE 's/.*\[([^]]+)\].*/\1/p')"
       issue_card_html "$parsed_output_file" "$tool_name" "$file_path" "$line_no" "$col_no" "$rule" "$description"
+      continue
+    fi
+
+    if echo "$stripped" | grep -Eq '^(vet:[[:space:]]+)?([^[:space:]:\[]+\.(ts|tsx|js|jsx|mjs|cjs|css|scss|less|py|java|go|vue|svelte|xml|yaml|yml|json)):[0-9]+(:[0-9]+)?:[[:space:]]*(.*)$'; then
+      file_path="$(echo "$stripped" | sed -E 's/^(vet:[[:space:]]+)?([^[:space:]:\[]+\.[[:alnum:]]+):([0-9]+)(:([0-9]+))?:[[:space:]]*(.*)$/\2/')"
+      line_no="$(echo "$stripped" | sed -E 's/^(vet:[[:space:]]+)?([^[:space:]:\[]+\.[[:alnum:]]+):([0-9]+)(:([0-9]+))?:[[:space:]]*(.*)$/\3/')"
+      col_no="$(echo "$stripped" | sed -E 's/^(vet:[[:space:]]+)?([^[:space:]:\[]+\.[[:alnum:]]+):([0-9]+)(:([0-9]+))?:[[:space:]]*(.*)$/\5/')"
+      description="$(echo "$stripped" | sed -E 's/^(vet:[[:space:]]+)?([^[:space:]:\[]+\.[[:alnum:]]+):([0-9]+)(:([0-9]+))?:[[:space:]]*(.*)$/\6/')"
+      rule="$(echo "$description" | sed -nE 's/.*\[([^]]+)\].*/\1/p')"
+      issue_card_html "$parsed_output_file" "$tool_name" "$file_path" "$line_no" "$col_no" "$rule" "$description"
     fi
   done < "$raw_output_file"
 }
@@ -638,6 +818,7 @@ run_tools() {
   while IFS="$(printf '\t')" read -r name fail_on_output reason command_text || [ -n "$name" ]; do
     [ -z "$name" ] && continue
     TOOLS_RUN=$((TOOLS_RUN + 1))
+    tool_id="tool-$TOOLS_RUN-$(slugify "$name")"
     slug="$(slugify "$name-$TOOLS_RUN")"
     output_file="$RAW_DIR/$slug.txt"
     parsed_output_file="$RAW_DIR/$slug-parsed.html"
@@ -658,14 +839,14 @@ run_tools() {
       :
     else
       FAILED_TOOLS=$((FAILED_TOOLS + 1))
-      extract_findings "$name" "$output_file"
+      extract_findings "$tool_id" "$name" "$output_file"
     fi
     build_parsed_output "$name" "$output_file" "$parsed_output_file"
     tool_issues=$((FINDING_COUNT - findings_before))
-    if [ "$tool_issues" -eq 0 ] && [ "$exit_code" -ne 0 ]; then
-      issues_html='<span class="badge fail">review output</span>'
+    if [ "$tool_issues" -gt 0 ]; then
+      issues_html="<a class=\"issue-link\" href=\"#$tool_id\">$tool_issues</a>"
     else
-      issues_html="$tool_issues"
+      issues_html="0"
     fi
 
     escaped_name="$(printf '%s' "$name" | html_escape)"
@@ -675,6 +856,13 @@ run_tools() {
       echo "<td>$escaped_name</td><td><code>$escaped_command</code></td><td>${duration}s</td><td>$issues_html</td>"
       echo '</tr>'
     } >> "$TOOL_ROWS_FILE"
+    printf '%s\t%s\t%s\t%s\t%s\t%s\n' \
+      "$tool_id" \
+      "$(printf '%s' "$name" | tr '\t\r\n' '   ')" \
+      "$(printf '%s' "$command_text" | tr '\t\r\n' '   ')" \
+      "$duration" \
+      "$tool_issues" \
+      "$exit_code" >> "$TOOL_STATS_FILE"
 
     escaped_output="$(html_escape < "$output_file")"
     {
@@ -708,18 +896,29 @@ render_report() {
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.5; }
     main { max-width: 1180px; margin: 0 auto; padding: 32px 24px 48px; }
-    h1, h2 { margin: 0 0 12px; }
+    h1, h2, h3, h4 { margin: 0 0 12px; }
     h1 { font-size: 30px; }
     h2 { font-size: 20px; margin-top: 28px; }
+    h3 { font-size: 17px; margin-top: 0; }
+    h4 { font-size: 14px; margin-top: 0; color: var(--muted); }
     .meta, .notice, .panel, details { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-top: 14px; }
     .notice { border-left: 4px solid var(--accent); }
     .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 18px; }
     .metric { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
     .metric strong { display: block; font-size: 28px; }
     .muted, .empty { color: var(--muted); }
+    .summary-groups { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin-top: 8px; }
+    .summary-group { background: #fbfcfe; border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+    .summary-group ul { margin: 0; padding-left: 18px; }
+    .context-notes { margin-top: 14px; }
+    .note-body h4 { margin-top: 10px; }
+    .note-body ul { margin: 0 0 8px; padding-left: 18px; }
+    .tool-findings { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; margin-top: 14px; padding: 16px; scroll-margin-top: 20px; }
     table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--border); }
     th, td { text-align: left; border-bottom: 1px solid var(--border); padding: 10px; vertical-align: top; }
     th { background: #edf1f7; font-size: 13px; }
+    .issue-link { color: var(--accent); font-weight: 700; text-decoration: none; }
+    .issue-link:hover { text-decoration: underline; }
     code, pre { font-family: "SFMono-Regular", Consolas, monospace; }
     .badge { display: inline-block; min-width: 66px; text-align: center; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 700; }
     .pass { color: #fff; background: var(--pass); }
@@ -764,22 +963,10 @@ render_report() {
     </div>
 HTML
 
-    echo '    <h2>Dependency Preparation</h2>'
-    echo '    <div class="panel">'
-    if [ -f "$REQUIREMENTS_PATH" ] || [ -f "$DEPENDENCY_NOTES_PATH" ] || [ -s "$DEPENDENCY_NOTES_RUNTIME" ]; then
-      echo '      <ul>'
-      [ -f "$REQUIREMENTS_PATH" ] && echo "        <li>Requirements: <code>$(printf '%s' "$REQUIREMENTS_PATH" | html_escape)</code></li>"
-      [ -f "$DEPENDENCY_NOTES_PATH" ] && echo "        <li>Notes: <code>$(printf '%s' "$DEPENDENCY_NOTES_PATH" | html_escape)</code></li>"
-      while IFS= read -r note || [ -n "$note" ]; do
-        [ -n "$note" ] && echo "        <li>$(printf '%s' "$note" | html_escape)</li>"
-      done < "$DEPENDENCY_NOTES_RUNTIME"
-      echo '      </ul>'
-    else
-      echo '      <p class="muted">No Python static-analysis dependencies needed preparation.</p>'
-    fi
-    echo '    </div>'
+    echo '    <h2>Summary</h2>'
+    cat "$SUMMARY_FILE"
 
-    echo '    <h2>Tools Run</h2>'
+    echo '    <h2>Tools Overview</h2>'
     echo '    <table><thead><tr><th>Tool</th><th>Command</th><th>Duration</th><th>Issues</th></tr></thead><tbody>'
     if [ -s "$TOOL_ROWS_FILE" ]; then
       cat "$TOOL_ROWS_FILE"
@@ -788,32 +975,8 @@ HTML
     fi
     echo '    </tbody></table>'
 
-    echo '    <h2>High-Priority Defects</h2>'
-    if [ -s "$FINDINGS_FILE" ]; then
-      cat "$FINDINGS_FILE"
-    else
-      echo '    <p class="empty">No high-priority quality defects were detected.</p>'
-    fi
-
-    echo '    <h2>Skipped Detection Notes</h2>'
-    echo '    <div class="panel">'
-    if [ -s "$SKIPPED_FILE" ]; then
-      echo '<ul>'
-      while IFS= read -r note || [ -n "$note" ]; do
-        echo "<li>$(printf '%s' "$note" | html_escape)</li>"
-      done < "$SKIPPED_FILE"
-      echo '</ul>'
-    else
-      echo '<p class="muted">No skipped detection notes.</p>'
-    fi
-    echo '    </div>'
-
-    echo '    <h2>Raw Tool Output</h2>'
-    if [ -s "$RAW_SECTIONS_FILE" ]; then
-      cat "$RAW_SECTIONS_FILE"
-    else
-      echo '    <p class="empty">No raw output was emitted by the executed tools.</p>'
-    fi
+    echo '    <h2>High-Priority Defect Details</h2>'
+    cat "$FINDINGS_FILE"
     echo '  </main></body></html>'
   } > "$REPORT_PATH"
 }
@@ -821,6 +984,8 @@ HTML
 prepare_python_dependencies
 discover_tools
 run_tools
+build_summary_html
+build_findings_html
 render_report
 
 report_json="$(printf '%s' "$REPORT_PATH" | json_escape)"

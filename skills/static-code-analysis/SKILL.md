@@ -36,10 +36,11 @@ The HTML report must include:
 - The project path and generation time.
 - The harness output directory.
 - A clear statement that security checks were excluded.
-- Dependency preparation notes, including generated requirements when Python quality tools had to be installed.
-- A table of every static analysis tool that ran, including tool name, command, duration, and number of parsed issues.
-- A high-priority defects section with file, line, column when available, tool name, message, suggested fix, and a nearby code excerpt.
-- A readable output section for each failed tool. Show parsed issue cards before raw output, with different visual styles for location, rule/message, and code excerpt. Ruff output must not be shown only as an undifferentiated preformatted blob.
+- A first section (`Summary`) that classifies high-priority defects by tool.
+- A second section (`Tools Overview`) with exactly these columns: `Tool`, `Command`, `Duration`, `Issues`.
+- `Issues` values in the second section must link to the matching tool group in the third section when the issue count is greater than zero.
+- A third section (`High-Priority Defect Details`) that shows only high-priority, recommended-to-fix defects.
+- The third section must group defects by tool, and each defect item must be collapsible.
 
 If a tool reports a failure but no code location can be parsed, inspect the tool output manually. Add the exact code location to the user-facing summary when possible, even if the script could not extract it automatically.
 
