@@ -128,6 +128,12 @@ has_python_files() {
     -o -type f -name '*.py' -print -quit | grep -q .
 }
 
+has_python_requirements() {
+  find "$ROOT" \
+    \( -name .git -o -name node_modules -o -name .venv -o -name venv -o -name target -o -name build -o -name dist -o -name __pycache__ -o -path "$ROOT/harness" \) -prune \
+    -o -type f -name 'requirements*.txt' -print -quit | grep -q .
+}
+
 has_file() {
   [ -f "$ROOT/$1" ]
 }
@@ -268,10 +274,10 @@ determine_stack_profile() {
 
   if has_java_markers; then
     BACKEND_STACK="java"
-  elif has_python_files; then
-    BACKEND_STACK="python"
   elif has_go_markers; then
     BACKEND_STACK="go"
+  elif has_python_requirements; then
+    BACKEND_STACK="python"
   fi
 
   if [ "$BACKEND_STACK" != "none" ] && [ "$HAS_FRONTEND_STACK" -eq 1 ]; then
@@ -287,7 +293,7 @@ prepare_python_dependencies() {
   if [ "$BACKEND_STACK" != "python" ]; then
     return 0
   fi
-  if ! has_python_files; then
+  if ! has_python_requirements; then
     return 0
   fi
 
@@ -296,11 +302,11 @@ prepare_python_dependencies() {
 
   if ! python_tool ruff >/dev/null; then
     echo "ruff" >> "$requirements_tmp"
-    add_dependency_note "\`ruff\`: Python files found, but Ruff is not available."
+    add_dependency_note "\`ruff\`: Python backend detected by requirements, but Ruff is not available."
   fi
   if ! python_tool mypy >/dev/null; then
     echo "mypy" >> "$requirements_tmp"
-    add_dependency_note "\`mypy\`: Python files found, but mypy is not available."
+    add_dependency_note "\`mypy\`: Python backend detected by requirements, but mypy is not available."
   fi
   if { has_file ".pylintrc" || has_config_text pylint pyproject.toml setup.cfg tox.ini; } && ! python_tool pylint >/dev/null; then
     echo "pylint" >> "$requirements_tmp"
@@ -431,8 +437,10 @@ discover_tools() {
     java)
       java_major=""
       spotbugs_version="4.9.8.3"
-      if has_python_files; then
-        add_skipped "Python files detected, but backend stack is Java (pom.xml present)."
+      if has_python_requirements; then
+        add_skipped "requirements*.txt detected, but backend stack is Java (pom.xml present)."
+      elif has_python_files; then
+        add_skipped "Python files detected without requirements*.txt; treated as scripts while backend stack is Java."
       fi
       if has_go_markers; then
         add_skipped "go.mod detected, but backend stack is Java (pom.xml present)."
@@ -476,8 +484,10 @@ discover_tools() {
       fi
       ;;
     go)
-      if has_python_files; then
-        add_skipped "Python files detected, but backend stack is Go."
+      if has_python_requirements; then
+        add_skipped "requirements*.txt detected, but backend stack is Go (go.mod present)."
+      elif has_python_files; then
+        add_skipped "Python files detected without requirements*.txt; treated as scripts while backend stack is Go."
       fi
       if command_exists gofmt; then
         add_tool "gofmt" 1 "backend stack go; formatting check" gofmt -l .
@@ -493,7 +503,10 @@ discover_tools() {
       ;;
     *)
       if [ "$HAS_FRONTEND_STACK" -eq 0 ]; then
-        add_skipped "No supported stack marker detected (expected pom.xml, Python source files, package.json, or go.mod)."
+        add_skipped "No supported stack marker detected (expected pom.xml, go.mod, requirements*.txt, or package.json)."
+      fi
+      if has_python_files && ! has_python_requirements; then
+        add_skipped "Python files detected without requirements*.txt; treated as scripts, not a Python backend project."
       fi
       ;;
   esac

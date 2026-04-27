@@ -12,7 +12,7 @@ If a tool can run both quality and security checks, use only the quality mode. I
 
 Treat the project as `backend + optional frontend`.
 
-- Backend priority: if `pom.xml` exists, backend is Java; otherwise Python source files; otherwise `go.mod`; otherwise no backend.
+- Backend priority: if `pom.xml` exists, backend is Java; otherwise `go.mod`; otherwise `requirements*.txt`; otherwise no backend.
 - Frontend is additive when `package.json` exists.
 - Valid profiles include `java+frontend`, `python+frontend`, `go+frontend`, `nodejs+frontend`, and backend-only variants.
 - When backend priority chooses Java, ignore Python/Go backend markers and note that in skipped/context notes.
@@ -28,7 +28,7 @@ Treat the project as `backend + optional frontend`.
 
 ## Python Execution Boundary
 
-Only projects whose selected backend is Python may execute Python tooling. For non-Python backend profiles, including Java+frontend, Go+frontend, and nodejs+frontend, do not invoke `python3`, Python scripts, Python virtual environments, or pip. Report generation must still succeed without Python.
+Only projects whose selected backend is Python may execute Python tooling. Python backend selection requires `requirements*.txt`, not just `*.py` files. For non-Python backend profiles, including Java+frontend, Go+frontend, and nodejs+frontend, do not invoke `python3`, Python scripts, Python virtual environments, or pip. Report generation must still succeed without Python.
 
 ## High-Priority Defects
 

@@ -14,7 +14,7 @@ This skill is intentionally scoped to code quality only. Do not run security sca
 Only projects whose backend stack is Python may execute Python tooling. Other stack combinations, including Java+frontend and Go+frontend, must not invoke `python3`, Python scripts, Python virtual environments, or pip.
 
 Detect stacks as `backend + optional frontend`:
-- backend priority: `pom.xml` -> Java, else Python source files -> Python, else `go.mod` -> Go, else none.
+- backend priority: `pom.xml` -> Java, else `go.mod` -> Go, else `requirements*.txt` -> Python, else none.
 - frontend is additive when `package.json` exists.
 
 ## Workflow
