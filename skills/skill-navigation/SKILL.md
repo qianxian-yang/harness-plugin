@@ -1,5 +1,5 @@
 ---
-name: (td-harness)using-td-harness
+name: (td-harness)skill-navigation
 description: Routes and invokes agent skills. Use when starting a session or when you need to determine which skill applies to the current task. This is the meta-skill that governs how all other skills are selected and invoked.
 ---
 
@@ -18,18 +18,18 @@ When a task arrives, identify the work type and apply the corresponding skill:
 ```
 Task arrives
     │
-    ├── Implementing code? ────────────→ test-driven-development
-    ├── Writing/running tests? ────────→ test-driven-development
-    ├── Something broke? ──────────────→ test-driven-development (Prove-It)
-    ├── Reviewing code? ───────────────→ code-review-and-quality
-    ├── Simplifying code? ─────────────→ code-simplification
-    ├── API-heavy task? ───────────────→ api-and-interface-design (optional domain)
-    ├── UI-heavy task? ────────────────→ frontend-ui-engineering (optional domain)
-    ├── Security concerns? ────────────→ security-and-hardening (optional domain)
-    ├── Performance concerns? ─────────→ performance-optimization (optional domain)
-    ├── Need better context? ──────────→ context-engineering (optional domain)
-    ├── Need doc-verified code? ───────→ source-driven-development (optional domain)
-    └── Unsure which to use? ─────────→ using-td-harness (this skill)
+    ├── Implementing code? ────────────→ `(td-harness)test-driven-development`
+    ├── Writing/running tests? ────────→ `(td-harness)test-driven-development`
+    ├── Something broke? ──────────────→ `(td-harness)test-driven-development` (Prove-It)
+    ├── Reviewing code? ───────────────→ `(td-harness)code-review-and-quality`
+    ├── Simplifying code? ─────────────→ `(td-harness)code-simplification`
+    ├── API-heavy task? ───────────────→ `(td-harness)api-and-interface-design` (optional domain)
+    ├── UI-heavy task? ────────────────→ `(td-harness)frontend-ui-engineering` (optional domain)
+    ├── Security concerns? ────────────→ `(td-harness)security-and-hardening` (optional domain)
+    ├── Performance concerns? ─────────→ `(td-harness)performance-optimization` (optional domain)
+    ├── Need better context? ──────────→ `(td-harness)context-engineering` (optional domain)
+    ├── Need doc-verified code? ───────→ `(td-harness)source-driven-development` (optional domain)
+    └── Unsure which to use? ─────────→ `(td-harness)skill-navigation` (this skill)
 ```
 
 ## Core Operating Behaviors
@@ -122,7 +122,7 @@ These are the subtle errors that look like productivity but create problems:
 
 2. **Skills are workflows, not suggestions.** Follow the steps in order. Don't skip verification steps.
 
-3. **Multiple skills can apply.** A feature implementation might involve `test-driven-development` → `code-review-and-quality` → `code-simplification`, optionally with domain skills like `api-and-interface-design` or `frontend-ui-engineering`.
+3. **Multiple skills can apply.** A feature implementation might involve `(td-harness)test-driven-development` → `(td-harness)code-review-and-quality` → `(td-harness)code-simplification`, optionally with domain skills like `(td-harness)api-and-interface-design` or `(td-harness)frontend-ui-engineering`.
 
 4. **When requirements are unclear, resolve ambiguity first.** Ask clarifying questions or request upstream artifacts from spec-kit before implementing.
 
@@ -131,24 +131,24 @@ These are the subtle errors that look like productivity but create problems:
 For the core workflow, the typical sequence is:
 
 ```
-1. test-driven-development     → Implement with failing tests first
-2. code-review-and-quality     → Review before merge
-3. code-simplification         → Reduce complexity without changing behavior
+1. `(td-harness)test-driven-development`     → Implement with failing tests first
+2. `(td-harness)code-review-and-quality`     → Review before merge
+3. `(td-harness)code-simplification`         → Reduce complexity without changing behavior
 ```
 
-Optional domain skills (`api-and-interface-design`, `frontend-ui-engineering`, `security-and-hardening`, `performance-optimization`, `context-engineering`, `source-driven-development`) can be layered in when task context requires them.
+Optional domain skills (`(td-harness)api-and-interface-design`, `(td-harness)frontend-ui-engineering`, `(td-harness)security-and-hardening`, `(td-harness)performance-optimization`, `(td-harness)context-engineering`, `(td-harness)source-driven-development`) can be layered in when task context requires them.
 
 ## Quick Reference
 
 | Category | Skill | One-Line Summary |
 |----------|-------|-----------------|
-| Core | test-driven-development | Failing test first, then make it pass |
-| Core | code-review-and-quality | Five-axis review with quality gates |
-| Core | code-simplification | Reduce complexity while preserving behavior |
-| Optional | source-driven-development | Verify against official docs before implementing |
-| Optional | context-engineering | Right context at the right time |
-| Optional | frontend-ui-engineering | Production-quality UI with accessibility |
-| Optional | api-and-interface-design | Stable interfaces with clear contracts |
-| Optional | security-and-hardening | OWASP prevention, input validation, least privilege |
-| Optional | performance-optimization | Measure first, optimize only what matters |
-| Meta | using-td-harness | Route tasks to the right workflows |
+| Core | `(td-harness)test-driven-development` | Failing test first, then make it pass |
+| Core | `(td-harness)code-review-and-quality` | Five-axis review with quality gates |
+| Core | `(td-harness)code-simplification` | Reduce complexity while preserving behavior |
+| Optional | `(td-harness)source-driven-development` | Verify against official docs before implementing |
+| Optional | `(td-harness)context-engineering` | Right context at the right time |
+| Optional | `(td-harness)frontend-ui-engineering` | Production-quality UI with accessibility |
+| Optional | `(td-harness)api-and-interface-design` | Stable interfaces with clear contracts |
+| Optional | `(td-harness)security-and-hardening` | OWASP prevention, input validation, least privilege |
+| Optional | `(td-harness)performance-optimization` | Measure first, optimize only what matters |
+| Meta | `(td-harness)skill-navigation` | Route tasks to the right workflows |
