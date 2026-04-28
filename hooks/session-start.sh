@@ -1,10 +1,10 @@
 #!/bin/bash
 # agent-skills session start hook
-# Injects the using-agent-skills meta-skill into every new session
+# Injects the skill-navigation meta-skill into every new session
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SKILLS_DIR="$(dirname "$SCRIPT_DIR")/skills"
-META_SKILL="$SKILLS_DIR/using-td-harness/SKILL.md"
+META_SKILL="$SKILLS_DIR/skill-navigation/SKILL.md"
 
 if [ -f "$META_SKILL" ]; then
   CONTENT=$(cat "$META_SKILL")
@@ -16,5 +16,5 @@ if [ -f "$META_SKILL" ]; then
 }
 EOF
 else
-  echo '{"priority": "INFO", "message": "agent-skills: using-agent-skills meta-skill not found. Skills may still be available individually."}'
+  echo '{"priority": "INFO", "message": "harness-skills: skill-navigation meta-skill not found. Skills may still be available individually."}'
 fi
