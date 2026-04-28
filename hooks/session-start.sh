@@ -12,9 +12,9 @@ if [ -f "$META_SKILL" ]; then
   cat <<EOF
 {
   "priority": "IMPORTANT",
-  "message": "harness-skills loaded. Use the skill discovery flowchart to find the right skill for your task.\n\n$CONTENT"
+  "message": "(td-harness)skill-navigation loaded. Use the skill discovery flowchart to find the right skill for your task.\n\n$CONTENT"
 }
 EOF
 else
-  echo '{"priority": "INFO", "message": "harness-skills: skill-navigation meta-skill not found. Skills may still be available individually."}'
+  echo '{"priority": "INFO", "message": "harness-skills: (td-harness)skill-navigation meta-skill not found. Skills may still be available individually."}'
 fi
