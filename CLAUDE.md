@@ -15,9 +15,9 @@ docs/         → Setup guides for different tools
 
 ## Skills
 
-**Core workflow:** (td-harness)test-driven-development, (td-harness)code-review-and-quality, (td-harness)code-simplification
-**Optional domain:** (td-harness)context-engineering, (td-harness)source-driven-development, (td-harness)frontend-ui-engineering, (td-harness)api-and-interface-design, (td-harness)security-and-hardening, (td-harness)performance-optimization
-**Meta:** (td-harness)skill-navigation
+**Core workflow:** td-test-driven-development, td-code-review-and-quality, td-code-simplification
+**Optional domain:** td-context-engineering, td-source-driven-development, td-frontend-ui-engineering, td-api-and-interface-design, td-security-and-hardening, td-performance-optimization
+**Meta:** td-skill-navigation
 
 ## Conventions
 

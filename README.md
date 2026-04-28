@@ -26,7 +26,7 @@ Skills encode the workflows, quality gates, and best practices that senior engin
 | Review before merge | `/review` | Improve code health |
 | Simplify the code | `/code-simplify` | Clarity over cleverness |
 
-Optional domain skills can still be applied based on context — for example, API-heavy work can use `(td-harness)api-and-interface-design`, and UI-heavy work can use `(td-harness)frontend-ui-engineering`.
+Optional domain skills can still be applied based on context — for example, API-heavy work can use `td-api-and-interface-design`, and UI-heavy work can use `td-frontend-ui-engineering`.
 
 ---
 
@@ -35,7 +35,7 @@ Optional domain skills can still be applied based on context — for example, AP
 If you want the fastest path, do this first:
 
 1. Clone the repo
-2. Pick 2-3 skills to start with (`(td-harness)test-driven-development`, `(td-harness)code-review-and-quality`, `(td-harness)context-engineering`)
+2. Pick 2-3 skills to start with (`td-test-driven-development`, `td-code-review-and-quality`, `td-context-engineering`)
 3. Follow the setup block for your agent
 
 ```bash
@@ -163,27 +163,27 @@ The commands above are the entry points. Under the hood, they activate these 11 
 
 | Skill | What It Does | Use When |
 |-------|-------------|----------|
-| [(td-harness)test-driven-development](skills/test-driven-development/SKILL.md) | Red-Green-Refactor, test pyramid (80/15/5), test sizes, DAMP over DRY, Beyonce Rule, browser testing | Implementing logic, fixing bugs, or changing behavior |
-| [(td-harness)code-review-and-quality](skills/code-review-and-quality/SKILL.md) | Five-axis review, change sizing (~100 lines), severity labels (Nit/Optional/FYI), review speed norms, splitting strategies | Before merging any change |
-| [(td-harness)code-simplification](skills/code-simplification/SKILL.md) | Chesterton's Fence, Rule of 500, reduce complexity while preserving exact behavior | Code works but is harder to read or maintain than it should be |
+| [td-test-driven-development](skills/test-driven-development/SKILL.md) | Red-Green-Refactor, test pyramid (80/15/5), test sizes, DAMP over DRY, Beyonce Rule, browser testing | Implementing logic, fixing bugs, or changing behavior |
+| [td-code-review-and-quality](skills/code-review-and-quality/SKILL.md) | Five-axis review, change sizing (~100 lines), severity labels (Nit/Optional/FYI), review speed norms, splitting strategies | Before merging any change |
+| [td-code-simplification](skills/code-simplification/SKILL.md) | Chesterton's Fence, Rule of 500, reduce complexity while preserving exact behavior | Code works but is harder to read or maintain than it should be |
 
 ### Optional Domain Skills
 
 | Skill | What It Does | Use When |
 |-------|-------------|----------|
-| [(td-harness)context-engineering](skills/context-engineering/SKILL.md) | Feed agents the right information at the right time - rules files, context packing, MCP integrations | Starting a session, switching tasks, or when output quality drops |
-| [(td-harness)source-driven-development](skills/source-driven-development/SKILL.md) | Ground every framework decision in official documentation - verify, cite sources, flag what's unverified | You want authoritative, source-cited code for any framework or library |
+| [td-context-engineering](skills/context-engineering/SKILL.md) | Feed agents the right information at the right time - rules files, context packing, MCP integrations | Starting a session, switching tasks, or when output quality drops |
+| [td-source-driven-development](skills/source-driven-development/SKILL.md) | Ground every framework decision in official documentation - verify, cite sources, flag what's unverified | You want authoritative, source-cited code for any framework or library |
 | [static-code-analysis](skills/static-code-analysis/SKILL.md) | Quality-only lint/type/style checks with self-contained HTML reports and code locations | Running static code checks without security scanning |
-| [(td-harness)frontend-ui-engineering](skills/frontend-ui-engineering/SKILL.md) | Component architecture, design systems, state management, responsive design, WCAG 2.1 AA accessibility | Building or modifying user-facing interfaces |
-| [(td-harness)api-and-interface-design](skills/api-and-interface-design/SKILL.md) | Contract-first design, Hyrum's Law, One-Version Rule, error semantics, boundary validation | Designing APIs, module boundaries, or public interfaces |
-| [(td-harness)security-and-hardening](skills/security-and-hardening/SKILL.md) | OWASP Top 10 prevention, auth patterns, secrets management, dependency auditing, three-tier boundary system | Handling user input, auth, data storage, or external integrations |
-| [(td-harness)performance-optimization](skills/performance-optimization/SKILL.md) | Measure-first approach - Core Web Vitals targets, profiling workflows, bundle analysis, anti-pattern detection | Performance requirements exist or you suspect regressions |
+| [td-frontend-ui-engineering](skills/frontend-ui-engineering/SKILL.md) | Component architecture, design systems, state management, responsive design, WCAG 2.1 AA accessibility | Building or modifying user-facing interfaces |
+| [td-api-and-interface-design](skills/api-and-interface-design/SKILL.md) | Contract-first design, Hyrum's Law, One-Version Rule, error semantics, boundary validation | Designing APIs, module boundaries, or public interfaces |
+| [td-security-and-hardening](skills/security-and-hardening/SKILL.md) | OWASP Top 10 prevention, auth patterns, secrets management, dependency auditing, three-tier boundary system | Handling user input, auth, data storage, or external integrations |
+| [td-performance-optimization](skills/performance-optimization/SKILL.md) | Measure-first approach - Core Web Vitals targets, profiling workflows, bundle analysis, anti-pattern detection | Performance requirements exist or you suspect regressions |
 
 ### Meta - Skill routing
 
 | Skill | What It Does | Use When |
 |-------|-------------|----------|
-| [(td-harness)skill-navigation](skills/skill-navigation/SKILL.md) | Meta-skill for routing tasks to the correct workflow | Starting a session or deciding which skill should be applied |
+| [td-skill-navigation](skills/skill-navigation/SKILL.md) | Meta-skill for routing tasks to the correct workflow | Starting a session or deciding which skill should be applied |
 
 ---
 

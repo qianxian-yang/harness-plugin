@@ -1,5 +1,5 @@
 ---
-name: (td-harness)code-review-and-quality
+name: td-code-review-and-quality
 description: Conducts multi-axis code review. Use before merging any change. Use when reviewing code written by yourself, another agent, or a human. Use when you need to assess code quality across multiple dimensions before it enters the main branch.
 ---
 
@@ -58,7 +58,7 @@ Does the change fit the system's design?
 
 ### 4. Security
 
-For detailed security guidance, see `(td-harness)security-and-hardening`. Does the change introduce vulnerabilities?
+For detailed security guidance, see `td-security-and-hardening`. Does the change introduce vulnerabilities?
 
 - Is user input validated and sanitized?
 - Are secrets kept out of code, logs, and version control?
@@ -71,7 +71,7 @@ For detailed security guidance, see `(td-harness)security-and-hardening`. Does t
 
 ### 5. Performance
 
-For detailed profiling and optimization, see `(td-harness)performance-optimization`. Does the change introduce performance problems?
+For detailed profiling and optimization, see `td-performance-optimization`. Does the change introduce performance problems?
 
 - Any N+1 query patterns?
 - Any unbounded loops or unconstrained data fetching?

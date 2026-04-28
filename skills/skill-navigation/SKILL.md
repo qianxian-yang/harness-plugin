@@ -1,5 +1,5 @@
 ---
-name: (td-harness)skill-navigation
+name: td-skill-navigation
 description: Routes and invokes agent skills. Use when starting a session or when you need to determine which skill applies to the current task. This is the meta-skill that governs how all other skills are selected and invoked.
 ---
 
@@ -18,18 +18,18 @@ When a task arrives, identify the work type and apply the corresponding skill:
 ```
 Task arrives
     │
-    ├── Implementing code? ────────────→ `(td-harness)test-driven-development`
-    ├── Writing/running tests? ────────→ `(td-harness)test-driven-development`
-    ├── Something broke? ──────────────→ `(td-harness)test-driven-development` (Prove-It)
-    ├── Reviewing code? ───────────────→ `(td-harness)code-review-and-quality`
-    ├── Simplifying code? ─────────────→ `(td-harness)code-simplification`
-    ├── API-heavy task? ───────────────→ `(td-harness)api-and-interface-design` (optional domain)
-    ├── UI-heavy task? ────────────────→ `(td-harness)frontend-ui-engineering` (optional domain)
-    ├── Security concerns? ────────────→ `(td-harness)security-and-hardening` (optional domain)
-    ├── Performance concerns? ─────────→ `(td-harness)performance-optimization` (optional domain)
-    ├── Need better context? ──────────→ `(td-harness)context-engineering` (optional domain)
-    ├── Need doc-verified code? ───────→ `(td-harness)source-driven-development` (optional domain)
-    └── Unsure which to use? ─────────→ `(td-harness)skill-navigation` (this skill)
+    ├── Implementing code? ────────────→ `td-test-driven-development`
+    ├── Writing/running tests? ────────→ `td-test-driven-development`
+    ├── Something broke? ──────────────→ `td-test-driven-development` (Prove-It)
+    ├── Reviewing code? ───────────────→ `td-code-review-and-quality`
+    ├── Simplifying code? ─────────────→ `td-code-simplification`
+    ├── API-heavy task? ───────────────→ `td-api-and-interface-design` (optional domain)
+    ├── UI-heavy task? ────────────────→ `td-frontend-ui-engineering` (optional domain)
+    ├── Security concerns? ────────────→ `td-security-and-hardening` (optional domain)
+    ├── Performance concerns? ─────────→ `td-performance-optimization` (optional domain)
+    ├── Need better context? ──────────→ `td-context-engineering` (optional domain)
+    ├── Need doc-verified code? ───────→ `td-source-driven-development` (optional domain)
+    └── Unsure which to use? ─────────→ `td-skill-navigation` (this skill)
 ```
 
 ## Core Operating Behaviors
@@ -122,7 +122,7 @@ These are the subtle errors that look like productivity but create problems:
 
 2. **Skills are workflows, not suggestions.** Follow the steps in order. Don't skip verification steps.
 
-3. **Multiple skills can apply.** A feature implementation might involve `(td-harness)test-driven-development` → `(td-harness)code-review-and-quality` → `(td-harness)code-simplification`, optionally with domain skills like `(td-harness)api-and-interface-design` or `(td-harness)frontend-ui-engineering`.
+3. **Multiple skills can apply.** A feature implementation might involve `td-test-driven-development` → `td-code-review-and-quality` → `td-code-simplification`, optionally with domain skills like `td-api-and-interface-design` or `td-frontend-ui-engineering`.
 
 4. **When requirements are unclear, resolve ambiguity first.** Ask clarifying questions or request upstream artifacts from spec-kit before implementing.
 
@@ -131,24 +131,24 @@ These are the subtle errors that look like productivity but create problems:
 For the core workflow, the typical sequence is:
 
 ```
-1. `(td-harness)test-driven-development`     → Implement with failing tests first
-2. `(td-harness)code-review-and-quality`     → Review before merge
-3. `(td-harness)code-simplification`         → Reduce complexity without changing behavior
+1. `td-test-driven-development`     → Implement with failing tests first
+2. `td-code-review-and-quality`     → Review before merge
+3. `td-code-simplification`         → Reduce complexity without changing behavior
 ```
 
-Optional domain skills (`(td-harness)api-and-interface-design`, `(td-harness)frontend-ui-engineering`, `(td-harness)security-and-hardening`, `(td-harness)performance-optimization`, `(td-harness)context-engineering`, `(td-harness)source-driven-development`) can be layered in when task context requires them.
+Optional domain skills (`td-api-and-interface-design`, `td-frontend-ui-engineering`, `td-security-and-hardening`, `td-performance-optimization`, `td-context-engineering`, `td-source-driven-development`) can be layered in when task context requires them.
 
 ## Quick Reference
 
 | Category | Skill | One-Line Summary |
 |----------|-------|-----------------|
-| Core | `(td-harness)test-driven-development` | Failing test first, then make it pass |
-| Core | `(td-harness)code-review-and-quality` | Five-axis review with quality gates |
-| Core | `(td-harness)code-simplification` | Reduce complexity while preserving behavior |
-| Optional | `(td-harness)source-driven-development` | Verify against official docs before implementing |
-| Optional | `(td-harness)context-engineering` | Right context at the right time |
-| Optional | `(td-harness)frontend-ui-engineering` | Production-quality UI with accessibility |
-| Optional | `(td-harness)api-and-interface-design` | Stable interfaces with clear contracts |
-| Optional | `(td-harness)security-and-hardening` | OWASP prevention, input validation, least privilege |
-| Optional | `(td-harness)performance-optimization` | Measure first, optimize only what matters |
-| Meta | `(td-harness)skill-navigation` | Route tasks to the right workflows |
+| Core | `td-test-driven-development` | Failing test first, then make it pass |
+| Core | `td-code-review-and-quality` | Five-axis review with quality gates |
+| Core | `td-code-simplification` | Reduce complexity while preserving behavior |
+| Optional | `td-source-driven-development` | Verify against official docs before implementing |
+| Optional | `td-context-engineering` | Right context at the right time |
+| Optional | `td-frontend-ui-engineering` | Production-quality UI with accessibility |
+| Optional | `td-api-and-interface-design` | Stable interfaces with clear contracts |
+| Optional | `td-security-and-hardening` | OWASP prevention, input validation, least privilege |
+| Optional | `td-performance-optimization` | Measure first, optimize only what matters |
+| Meta | `td-skill-navigation` | Route tasks to the right workflows |

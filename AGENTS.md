@@ -21,12 +21,12 @@ OpenCode uses a **skill-driven execution model** powered by the `skill` tool and
 
 The agent should automatically map user intent to skills:
 
-- Feature / new functionality → `(td-harness)test-driven-development`
-- Bug / failure / unexpected behavior → `(td-harness)test-driven-development` (Prove-It pattern)
-- Code review → `(td-harness)code-review-and-quality`
-- Refactoring / simplification → `(td-harness)code-simplification`
-- API or interface design → `(td-harness)api-and-interface-design` (optional domain skill)
-- UI work → `(td-harness)frontend-ui-engineering` (optional domain skill)
+- Feature / new functionality → `td-test-driven-development`
+- Bug / failure / unexpected behavior → `td-test-driven-development` (Prove-It pattern)
+- Code review → `td-code-review-and-quality`
+- Refactoring / simplification → `td-code-simplification`
+- API or interface design → `td-api-and-interface-design` (optional domain skill)
+- UI work → `td-frontend-ui-engineering` (optional domain skill)
 
 ### Workflow Mapping (Implicit Commands)
 
@@ -34,9 +34,9 @@ This OpenCode setup does not rely on slash commands like `/test` or `/review`.
 
 Instead, the agent must internally follow this workflow:
 
-- TEST → `(td-harness)test-driven-development`
-- REVIEW → `(td-harness)code-review-and-quality`
-- SIMPLIFY → `(td-harness)code-simplification`
+- TEST → `td-test-driven-development`
+- REVIEW → `td-code-review-and-quality`
+- SIMPLIFY → `td-code-simplification`
 
 Requirements/planning and release governance are handled outside this repository (e.g. spec-kit and company release processes).
 

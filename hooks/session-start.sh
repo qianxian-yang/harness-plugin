@@ -4,7 +4,7 @@
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SKILLS_DIR="$(dirname "$SCRIPT_DIR")/skills"
-META_SKILL="$SKILLS_DIR/skill-navigation/SKILL.md"
+META_SKILL="$SKILLS_DIR/td-skill-navigation/SKILL.md"
 
 if [ -f "$META_SKILL" ]; then
   CONTENT=$(cat "$META_SKILL")
@@ -12,9 +12,9 @@ if [ -f "$META_SKILL" ]; then
   cat <<EOF
 {
   "priority": "IMPORTANT",
-  "message": "(td-harness)skill-navigation loaded. Use the skill discovery flowchart to find the right skill for your task.\n\n$CONTENT"
+  "message": "td-skill-navigation loaded. Use the skill discovery flowchart to find the right skill for your task.\n\n$CONTENT"
 }
 EOF
 else
-  echo '{"priority": "INFO", "message": "harness-skills: (td-harness)skill-navigation meta-skill not found. Skills may still be available individually."}'
+  echo '{"priority": "INFO", "message": "harness-skills: td-skill-navigation meta-skill not found. Skills may still be available individually."}'
 fi
