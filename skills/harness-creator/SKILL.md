@@ -1,5 +1,5 @@
 ---
-name: td-harness:harness-creator
+name: (td-harness)harness-creator
 description: "Design and create AI-agent infrastructure for codebases: AGENTS.md, documentation architecture (harness/docs/), linters with actionable errors (harness/lint-scripts/lint-*), and harness runtime configs/scripts. Creates files directly — never writes business/application code."
 ---
 

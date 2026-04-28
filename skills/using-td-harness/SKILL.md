@@ -1,5 +1,5 @@
 ---
-name: using-td-harness
+name: (td-harness)using-td-harness
 description: Routes and invokes agent skills. Use when starting a session or when you need to determine which skill applies to the current task. This is the meta-skill that governs how all other skills are selected and invoked.
 ---
 
