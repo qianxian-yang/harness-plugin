@@ -1,0 +1,4 @@
+interface:
+  display_name: "Google Python Coding Guidelines"
+  short_description: "Apply Google Python style guide in coding and reviews"
+  default_prompt: "Use $td-python-coding-guidelines to review this Python code and suggest fixes."
