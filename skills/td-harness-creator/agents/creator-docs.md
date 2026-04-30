@@ -21,14 +21,16 @@ The navigation map for AI agents. This is the most important file.
 ```
 Line 1-10:    Project overview (describe project positioning and summarize the technology stack and repository organization; stack and structure must reflect the actual codebase)
 Line 11-25:   Quick commands (build, run, test, format, quality checks) + environment variable setup and precedence (based on the project's real mechanism)
-Line 26-45:   Backend architecture (ASCII package tree + purpose of each package + brief core subsystem summary) with link to the detailed architecture doc
-Line 46-60:   Frontend architecture (tech stack, routing approach, API layer conventions, component standards) with link to the frontend architecture doc
+Line 26-45:   Backend architecture (optional; include only when backend exists): ASCII package tree + purpose of each package + brief core subsystem summary, with link to the detailed architecture doc
+Line 46-60:   Frontend architecture (optional; include only when frontend exists): tech stack, routing approach, API layer conventions, component standards, with link to the frontend architecture doc
 Line 61-75:   Key conventions (exception handling, response conventions, layered dependency rules, code style, security baseline); include a detailed doc link for each rule
 Line 76-90:   Local development and verification flow (change → build → run → verify) + API verification method, auth/token acquisition method, and log location guidance
 Line 91-100:  Quality check command list (for example lint/format/build/test; use actual repository commands)
 Line 101-110: Reference project conventions (reference project/source list + precedence rules when conventions conflict)
 Line 111-120: Documentation navigation index (architecture / design-docs / references, etc.)
 ```
+
+The structure above should be enforced as strictly as possible. The only exception is that the backend/frontend architecture sections are conditional by project type (backend-only projects may omit frontend architecture; frontend-only projects may omit backend architecture).
 
 **Rules**:
 - Every link must point to a doc that actually exists
