@@ -1,6 +1,6 @@
 # Environment Detection Guide
 
-This document defines **environment.json** — the environment contract between harness-creator and harness-executor — and explains how to detect, collect, and generate environment information for a project.
+This document defines **environment.json** — the environment contract between harness-creator and downstream execution/verification workflows — and explains how to detect, collect, and generate environment information for a project.
 
 > **Key Insight**: Environment is not just configuration — it's the complete runtime ecosystem including databases, services, secrets, and the **executable scripts** to bring it all up.
 
@@ -181,10 +181,10 @@ harness/
   },
 
   "scripts": {
-    "setup_env": "harness/scripts/setup-env.sh",
-    "start_server": "harness/scripts/start-server.sh",
-    "teardown_env": "harness/scripts/teardown-env.sh",
-    "seed_data": "harness/scripts/seed-data.sh"
+    "setup_env": "harness/server-scripts/setup-env.sh",
+    "start_server": "harness/server-scripts/start-server.sh",
+    "teardown_env": "harness/server-scripts/teardown-env.sh",
+    "seed_data": "harness/server-scripts/seed-data.sh"
   }
 }
 ```
@@ -197,7 +197,7 @@ Beyond the JSON configuration, harness-creator must generate **executable script
 
 ### 3.1 Script Templates
 
-#### `harness/scripts/setup-env.sh`
+#### `harness/server-scripts/setup-env.sh`
 
 Sets up all dependencies (databases, external services) using Docker or local services.
 
@@ -280,7 +280,7 @@ echo "Running migrations for {{name}}..."
 echo "==> Environment setup complete!"
 ```
 
-#### `harness/scripts/start-server.sh`
+#### `harness/server-scripts/start-server.sh`
 
 Starts the application with the correct environment variables.
 
@@ -315,7 +315,7 @@ echo "Starting server on port ${PORT:-8080}..."
 {{runtime.dev_command}}
 ```
 
-#### `harness/scripts/teardown-env.sh`
+#### `harness/server-scripts/teardown-env.sh`
 
 Stops and cleans up all dependencies.
 
@@ -346,7 +346,7 @@ docker rm {{name}} 2>/dev/null || true
 echo "==> Teardown complete."
 ```
 
-#### `harness/scripts/seed-data.sh`
+#### `harness/server-scripts/seed-data.sh`
 
 Seeds the database with test data.
 
@@ -555,14 +555,14 @@ When detected, prompt user to confirm before including in environment.json.
 
 ---
 
-## 6. Integration with harness-executor
+## 6. Downstream Integration
 
 ### 6.1 Relationship
 
-harness-creator generates `environment.json` to describe the runtime ecosystem. harness-executor consumes it at task runtime to dynamically generate `verify.json` for verification.
+harness-creator generates `environment.json` to describe the runtime ecosystem. Downstream execution/verification workflows consume it at task runtime to generate `verify.json` for verification.
 
 ```
-environment.json (harness-creator)       verify.json (harness-executor, runtime)
+environment.json (harness-creator)       verify.json (downstream workflow, runtime)
 ════════════════════════════════════     ═══════════════════════════════════════
 databases[]                              prerequisites.database_checks[]
   └─ auto-derived ─────────────────►       (TCP connectivity)
@@ -580,11 +580,11 @@ functional_scenarios[]                   (not in verify.json)
   └─ consumed by ──────────────────►     verifier subagent
 ```
 
-> **Note**: harness-creator does NOT generate `verify.json`. It only provides `environment.json` as the foundation. harness-executor dynamically generates `verify.json` at task runtime based on environment.json + task context.
+> **Note**: harness-creator does NOT generate `verify.json`. It only provides `environment.json` as the foundation. Downstream workflows generate `verify.json` at task runtime based on environment.json + task context.
 
 ### 6.2 Auto-Derivation Rules
 
-When harness-executor generates `verify.json`, it automatically derives `prerequisites` from `environment.json`:
+When downstream workflows generate `verify.json`, they automatically derive `prerequisites` from `environment.json`:
 
 ```python
 def derive_prerequisites(env_config):
@@ -741,9 +741,9 @@ Given a Go web API with PostgreSQL and Redis:
     }
   },
   "scripts": {
-    "setup_env": "harness/scripts/setup-env.sh",
-    "start_server": "harness/scripts/start-server.sh",
-    "teardown_env": "harness/scripts/teardown-env.sh"
+    "setup_env": "harness/server-scripts/setup-env.sh",
+    "start_server": "harness/server-scripts/start-server.sh",
+    "teardown_env": "harness/server-scripts/teardown-env.sh"
   }
 }
 ```

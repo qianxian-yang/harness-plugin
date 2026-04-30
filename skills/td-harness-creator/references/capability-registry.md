@@ -219,7 +219,7 @@ capability: create_harness_config
 provides:
   - environment_json    # harness/config/environment.json
   - verify_json         # harness/config/verify.json
-  - setup_scripts       # harness/scripts/*.sh
+  - setup_scripts       # harness/server-scripts/*.sh
   - makefile_targets    # Makefile additions
   - ci_config           # .github/workflows/ci.yml
 requires:

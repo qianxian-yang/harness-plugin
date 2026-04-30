@@ -12,7 +12,7 @@ You will receive:
 
 ## Files You Create/Update
 
-### harness/config/environments.json
+### harness/config/environment.json
 
 The runtime ecosystem contract. Describes what the application needs to run.
 
@@ -188,7 +188,7 @@ harness/
 │   ├── lint-deps.{ext}
 │   └── lint-quality.{ext}
 ├── config/
-│   └── environments.json
+│   └── environment.json
 ├── server-scripts/
 │   ├── setup-env.sh
 │   ├── start-server.sh

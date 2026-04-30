@@ -47,7 +47,7 @@ Produce a comprehensive audit report showing what exists, what's missing, and wh
 
 | Check | How | Pass Criteria |
 |-------|-----|---------------|
-| environments.json exists | `test -f harness/config/environments.json` | File exists (if project has external deps) |
+| environment.json exists | `test -f harness/config/environment.json` | File exists (if project has external deps) |
 | Setup scripts exist | `test -f harness/server-scripts/setup-env.sh` | File exists |
 | Scripts are executable | `test -x harness/server-scripts/*.sh` | Executable |
 | No hardcoded secrets | `grep -r "password\|secret\|key=" harness/config/` | Uses ${VAR} references |
