@@ -111,7 +111,7 @@ lint: lint-arch
 lint-arch:
 	@echo "Checking architecture constraints..."
 	@go run scripts/lint-deps.go
-	@go run scripts/lint-quality.go
+	@./scripts/lint-quality
 	@echo "✓ Architecture checks passed"
 
 clean:
@@ -131,9 +131,9 @@ Use the template from `references/linter-templates.md`, with:
   }
   ```
 
-### scripts/lint-quality.go
+### scripts/lint-quality
 
-Use the template from `references/linter-templates.md`, with file size limit set to 500 for new projects (can grow to 1000 later).
+Use the Go wrapper template from `references/linter-templates.md` (language-native static analyzers only).
 
 ---
 
@@ -211,8 +211,10 @@ var layers = [][]string{
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
     "test": "jest",
-    "lint": "npm run lint:arch && eslint src/",
-    "lint:arch": "ts-node scripts/lint-deps.ts && ts-node scripts/lint-quality.ts"
+    "lint": "npm run lint:arch && npm run lint:eslint",
+    "lint:eslint": "eslint src/",
+    "typecheck": "tsc --noEmit",
+    "lint:arch": "ts-node scripts/lint-deps.ts && ./scripts/lint-quality"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
@@ -365,74 +367,19 @@ if (violations === 0) {
 }
 ```
 
-### scripts/lint-quality.ts
+### scripts/lint-quality
 
-```typescript
-#!/usr/bin/env ts-node
-/**
- * Validates quality rules:
- * - File size limits (max 500 lines)
- * - No console.log in production code (use a logger)
- */
-import * as fs from "fs";
-import * as path from "path";
+```bash
+#!/bin/bash
+set -euo pipefail
 
-const MAX_FILE_LINES = 500;
-let violations = 0;
+echo "+ npm run lint"
+npm run lint
 
-function checkFile(filePath: string): void {
-  const content = fs.readFileSync(filePath, "utf8");
-  const lines = content.split("\n");
+echo "+ npm run typecheck"
+npm run typecheck
 
-  // Check file size
-  if (lines.length > MAX_FILE_LINES) {
-    console.error(
-      `✗ ${filePath} has ${lines.length} lines (max ${MAX_FILE_LINES})`,
-    );
-    console.error(
-      `  Fix: Split this file into smaller, focused modules.`,
-    );
-    violations++;
-  }
-
-  // Check for console.log in non-test, non-index files
-  if (!filePath.includes(".test.") && !filePath.endsWith("index.ts")) {
-    lines.forEach((line, i) => {
-      if (line.match(/console\.log\(/) && !line.trim().startsWith("//")) {
-        console.error(
-          `✗ ${filePath}:${i + 1} — Use structured logger instead of console.log`,
-        );
-        console.error(
-          `  Fix: Import the logger from src/utils/logger.ts and use logger.info() instead.`,
-        );
-        violations++;
-      }
-    });
-  }
-}
-
-function walkDir(dir: string): void {
-  if (!fs.existsSync(dir)) return;
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
-  for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name);
-    if (entry.isDirectory() && entry.name !== "node_modules") {
-      walkDir(fullPath);
-    } else if (entry.name.endsWith(".ts")) {
-      checkFile(fullPath);
-    }
-  }
-}
-
-walkDir("src");
-
-if (violations === 0) {
-  console.log("✓ All quality checks passed");
-  process.exit(0);
-} else {
-  console.error(`\n✗ Found ${violations} quality violation(s)`);
-  process.exit(1);
-}
+echo "✓ TypeScript/JavaScript static quality checks passed"
 ```
 
 ---
@@ -1107,7 +1054,7 @@ Last updated: {today's date}
 4. Layer hierarchy enforced by linters
 5. All public APIs documented
 
-> Enforced by: [\`scripts/lint-quality.go\`]()
+> Enforced by: [\`scripts/lint-quality\`]()
 
 ## 4 Quality Trend
 
@@ -1326,7 +1273,7 @@ jobs:
       - name: Lint Architecture
         run: |
           go run scripts/lint-deps.go
-          go run scripts/lint-quality.go
+          ./scripts/lint-quality
 ```
 
 ### .github/workflows/ci.yml (TypeScript version)

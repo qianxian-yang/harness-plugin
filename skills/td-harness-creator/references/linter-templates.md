@@ -240,6 +240,105 @@ The wrapper should:
 - Return actionable failure context (which command failed)
 - Avoid duplicating analyzer logic that existing tools already provide
 
+### Bash Wrapper Templates (Recommended)
+
+Use `harness/lint-scripts/lint-quality` as an executable shell script:
+
+#### Go wrapper
+
+```bash
+#!/bin/bash
+set -euo pipefail
+
+run() {
+  echo "+ $*"
+  "$@"
+}
+
+run go install honnef.co/go/tools/cmd/staticcheck@0.6.1
+run go vet ./...
+run staticcheck ./...
+
+echo "✓ Go static quality checks passed"
+```
+
+#### Python wrapper
+
+```bash
+#!/bin/bash
+set -euo pipefail
+
+run() {
+  echo "+ $*"
+  "$@"
+}
+
+ROOT="$(pwd)"
+if [[ -x "$ROOT/venv/bin/ruff" && -x "$ROOT/venv/bin/mypy" ]]; then
+  BIN="$ROOT/venv/bin"
+elif [[ -x "$ROOT/.venv/bin/ruff" && -x "$ROOT/.venv/bin/mypy" ]]; then
+  BIN="$ROOT/.venv/bin"
+else
+  echo "Missing Python static tooling (ruff + mypy)." >&2
+  echo "Install with one of:" >&2
+  echo "  $ROOT/venv/bin/pip install ruff mypy" >&2
+  echo "  $ROOT/.venv/bin/pip install ruff mypy" >&2
+  exit 1
+fi
+
+run "$BIN/ruff" check .
+run "$BIN/mypy" .
+
+echo "✓ Python static quality checks passed"
+```
+
+#### Java wrapper
+
+```bash
+#!/bin/bash
+set -euo pipefail
+
+run() {
+  echo "+ $*"
+  "$@"
+}
+
+run mvn -B clean install -DskipTests -U
+
+JAVA_MAJOR="$(
+  java -version 2>&1 | awk -F[\".] '/version/ { if ($2=="1") print $3; else print $2 }'
+)"
+if [[ -z "${JAVA_MAJOR:-}" ]]; then
+  echo "Unable to detect Java major version." >&2
+  exit 1
+fi
+
+if (( JAVA_MAJOR > 8 )); then
+  run mvn com.github.spotbugs:spotbugs-maven-plugin:4.9.8.3:spotbugs
+else
+  run mvn com.github.spotbugs:spotbugs-maven-plugin:4.7.3.6:spotbugs
+fi
+
+echo "✓ Java static quality checks passed"
+```
+
+#### TypeScript / JavaScript wrapper
+
+```bash
+#!/bin/bash
+set -euo pipefail
+
+run() {
+  echo "+ $*"
+  "$@"
+}
+
+run npm run lint
+run npm run typecheck
+
+echo "✓ TypeScript/JavaScript static quality checks passed"
+```
+
 ## Template Linter
 
 Validates template files (.tpl) are valid and referenced.

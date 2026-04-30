@@ -392,11 +392,11 @@ make test
 ```markdown
 # Quality Standards
 
-Golden principles enforced by \`scripts/lint-quality.go\`.
+Golden principles enforced by \`scripts/lint-quality\`.
 
 ## 1 Structured Logging
 
-> Enforced by: [\`scripts/lint-quality.go:28-45\`]()
+> Enforced by: [\`scripts/lint-quality\`]()
 
 \`\`\`go
 // ✓ Good — structured, parseable, queryable
@@ -428,7 +428,7 @@ return err
 
 ## 3 File Size Limits
 
-> Enforced by: [\`scripts/lint-quality.go:50-62\`]()
+> Enforced by: [\`scripts/lint-quality\`]()
 
 - Maximum **1000 lines** per file
 - Split large files into focused modules
@@ -450,7 +450,7 @@ return err
 make lint-arch    # Run all architecture linters
 \`\`\`
 
-See [\`scripts/lint-quality.go\`]() for the complete set of enforced rules.
+See [\`scripts/lint-quality\`]() for the complete set of enforced rules.
 ```
 
 ---

@@ -44,6 +44,7 @@ This is the most important quality requirement. An error message that only says 
 - Custom AST/regex checks are optional supplements only, never the primary quality gate.
 - If required static tooling cannot be found, fail with an actionable install message (non-zero exit).
 - `lint-quality` should be an orchestrator wrapper: discovers env/tool path, runs required commands, and returns the failing command.
+- Preferred implementation is an executable shell wrapper at `harness/lint-scripts/lint-quality` (no extension). Language-specific wrappers like `.py` are allowed only when shell is not practical.
 
 **Language defaults (REQUIRED BASELINE)**:
 - Go:
@@ -55,16 +56,19 @@ This is the most important quality requirement. An error message that only says 
   - Run `ruff` + `mypy` from first existing path:
     - `<project>/venv/bin/...`
     - `<project>/.venv/bin/...`
-    - `/Users/yqx/ai/aitroll/venv/bin/...` (fallback)
 - Java:
   - `mvn -B clean install -DskipTests -U`
   - Java `> 8`: `mvn com.github.spotbugs:spotbugs-maven-plugin:4.9.8.3:spotbugs`
   - Java `<= 8`: `mvn com.github.spotbugs:spotbugs-maven-plugin:4.7.3.6:spotbugs`
+- TypeScript / JavaScript:
+  - `npm run lint`
+  - `npm run typecheck`
 
 **Hard enforcement rules**:
 - Python `lint-quality` MUST run both `ruff` and `mypy` (in that order).
 - Go `lint-quality` MUST run both `go vet` and `staticcheck`.
 - Java `lint-quality` MUST run Maven build (`-DskipTests`) and SpotBugs with version selected by Java major version.
+- TypeScript/JavaScript `lint-quality` MUST run both `npm run lint` and `npm run typecheck` (in that order).
 - A generated `lint-quality` that only scans source (AST/regex/manual heuristics) is non-compliant.
 
 **Same error message quality**: WHAT + WHY + HOW.

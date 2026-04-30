@@ -27,7 +27,7 @@ Templates for auditing and improving existing harness infrastructure.
 | scripts/lint-deps.go exists | `test -f scripts/lint-deps.go` | 0/15 |
 | Layer map covers all packages | Compare to `go list ./...` | 0/20 |
 | Introducing violation fails lint | Add bad import, run lint | 0/15 |
-| scripts/lint-quality.go exists | `test -f scripts/lint-quality.go` | 0/15 |
+| scripts/lint-quality exists | `test -f scripts/lint-quality` | 0/15 |
 | Quality rules match QUALITY.md | Compare documented rules to linter | 0/10 |
 | Makefile has lint-arch target | `grep lint-arch Makefile` | 0/10 |
 | `make lint-arch` passes | Run it | 0/15 |
@@ -186,7 +186,7 @@ go list ./... | grep -v vendor
 ### Quality Rules Coverage
 
 **Rules in QUALITY.md:** [count]
-**Rules in lint-quality.go:** [count]
+**Rules in lint-quality wrapper:** [count]
 
 **Missing enforcement:**
 - Rule 5: "No hardcoded timeouts" — not checked by linter
@@ -470,7 +470,7 @@ func auditDocumentation() AuditResult {
 func auditLinters() AuditResult {
 	r := AuditResult{Dimension: "Linters", MaxScore: 100}
 
-	linters := []string{"scripts/lint-deps.go", "scripts/lint-quality.go"}
+	linters := []string{"scripts/lint-deps.go", "scripts/lint-quality"}
 	for _, l := range linters {
 		if _, err := os.Stat(l); err == nil {
 			r.Score += 25
