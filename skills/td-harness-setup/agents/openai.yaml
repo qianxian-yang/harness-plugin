@@ -1,0 +1,3 @@
+display_name: TD Harness Setup
+short_description: Scaffold harness folders, startup scripts, and AGENTS/CLAUDE maps.
+default_prompt: Set up this repository with the td-harness-setup workflow, including harness scripts, AGENTS.md, and CLAUDE.md.

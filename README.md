@@ -35,7 +35,7 @@ Optional domain skills can still be applied based on context — for example, AP
 If you want the fastest path, do this first:
 
 1. Clone the repo
-2. Pick 2-3 skills to start with (`td-test-driven-development`, `td-code-review-and-quality`, `td-context-engineering`)
+2. Pick 2-3 skills to start with (`td-test-driven-development`, `td-code-review-and-quality`, `td-code-simplification`)
 3. Follow the setup block for your agent
 
 ```bash
@@ -77,7 +77,6 @@ Use `.cursor/rules/` and load the three core skills first:
 mkdir -p .cursor/rules
 cp /path/to/harness-skills/skills/td-test-driven-development/SKILL.md .cursor/rules/test-driven-development.md
 cp /path/to/harness-skills/skills/td-code-review-and-quality/SKILL.md .cursor/rules/code-review-and-quality.md
-cp /path/to/harness-skills/skills/td-context-engineering/SKILL.md .cursor/rules/context-engineering.md
 ```
 
 Full setup options (rules, `.cursorrules`, Notepads): [docs/cursor-setup.md](docs/cursor-setup.md).
@@ -155,7 +154,7 @@ Universal setup guide: [docs/getting-started.md](docs/getting-started.md).
 
 ---
 
-## All 11 Skills
+## All 10 Skills
 
 The commands above are the entry points. Under the hood, they activate these 11 skills — each one a structured workflow with steps, verification gates, and anti-rationalization tables. You can also reference any skill directly.
 
@@ -171,7 +170,6 @@ The commands above are the entry points. Under the hood, they activate these 11 
 
 | Skill | What It Does | Use When |
 |-------|-------------|----------|
-| [td-context-engineering](skills/td-context-engineering/SKILL.md) | Feed agents the right information at the right time - rules files, context packing, MCP integrations | Starting a session, switching tasks, or when output quality drops |
 | [td-source-driven-development](skills/td-source-driven-development/SKILL.md) | Ground every framework decision in official documentation - verify, cite sources, flag what's unverified | You want authoritative, source-cited code for any framework or library |
 | [static-code-analysis](skills/static-code-analysis/SKILL.md) | Quality-only lint/type/style checks with self-contained HTML reports and code locations | Running static code checks without security scanning |
 | [td-frontend-ui-engineering](skills/td-frontend-ui-engineering/SKILL.md) | Component architecture, design systems, state management, responsive design, WCAG 2.1 AA accessibility | Building or modifying user-facing interfaces |

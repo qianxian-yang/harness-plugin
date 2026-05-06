@@ -27,7 +27,6 @@ Task arrives
     ├── UI-heavy task? ────────────────→ `td-frontend-ui-engineering` (optional domain)
     ├── Security concerns? ────────────→ `td-security-and-hardening` (optional domain)
     ├── Performance concerns? ─────────→ `td-performance-optimization` (optional domain)
-    ├── Need better context? ──────────→ `td-context-engineering` (optional domain)
     ├── Need doc-verified code? ───────→ `td-source-driven-development` (optional domain)
     └── Unsure which to use? ─────────→ `td-skill-navigation` (this skill)
 ```
@@ -136,7 +135,7 @@ For the core workflow, the typical sequence is:
 3. `td-code-simplification`         → Reduce complexity without changing behavior
 ```
 
-Optional domain skills (`td-api-and-interface-design`, `td-frontend-ui-engineering`, `td-security-and-hardening`, `td-performance-optimization`, `td-context-engineering`, `td-source-driven-development`) can be layered in when task context requires them.
+Optional domain skills (`td-api-and-interface-design`, `td-frontend-ui-engineering`, `td-security-and-hardening`, `td-performance-optimization`, `td-source-driven-development`) can be layered in when task context requires them.
 
 ## Quick Reference
 
@@ -146,7 +145,6 @@ Optional domain skills (`td-api-and-interface-design`, `td-frontend-ui-engineeri
 | Core | `td-code-review-and-quality` | Five-axis review with quality gates |
 | Core | `td-code-simplification` | Reduce complexity while preserving behavior |
 | Optional | `td-source-driven-development` | Verify against official docs before implementing |
-| Optional | `td-context-engineering` | Right context at the right time |
 | Optional | `td-frontend-ui-engineering` | Production-quality UI with accessibility |
 | Optional | `td-api-and-interface-design` | Stable interfaces with clear contracts |
 | Optional | `td-security-and-hardening` | OWASP prevention, input validation, least privilege |

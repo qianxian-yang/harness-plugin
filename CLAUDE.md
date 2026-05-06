@@ -16,7 +16,7 @@ docs/         → Setup guides for different tools
 ## Skills
 
 **Core workflow:** td-test-driven-development, td-code-review-and-quality, td-code-simplification
-**Optional domain:** td-context-engineering, td-source-driven-development, td-frontend-ui-engineering, td-api-and-interface-design, td-security-and-hardening, td-performance-optimization
+**Optional domain:** td-source-driven-development, td-frontend-ui-engineering, td-api-and-interface-design, td-security-and-hardening, td-performance-optimization
 **Meta:** td-skill-navigation
 
 ## Conventions
