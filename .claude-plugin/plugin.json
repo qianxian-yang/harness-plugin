@@ -1,12 +1,17 @@
 {
-  "name": "harness-skills",
+  "name": "harness-plugin",
   "description": "Production-grade engineering skills for AI coding agents — covering the full software development lifecycle from spec to ship.",
   "version": "1.0.0",
   "author": {
-    "name": "Tongdun Skills Team"
+    "name": "qianxian.yang"
   },
-  "homepage": "https://gitlab.tongdun.cn/skills/harness-skills",
-  "repository": "git@gitlab.tongdun.cn:skills/harness-skills.git",
-  "license": "MIT",
-  "commands": "./.claude/commands"
+  "homepage": "https://github.com/qianxian-yang/td-harness-skills.git",
+  "repository": "https://github.com/qianxian-yang/td-harness-skills.git",
+  "commands": "./.claude/commands",
+  "skills": "./skills",
+  "agents": [
+    "./agents/code-reviewer.md",
+    "./agents/security-auditor.md",
+    "./agents/test-engineer.md"
+  ]
 }
