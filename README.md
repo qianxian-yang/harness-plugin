@@ -41,6 +41,11 @@ claude plugin install harness-plugin@td-quality
 > claude plugin marketplace add https://github.com/qianxian-yang/td-harness-skills.git
 > claude plugin install harness-plugin@td-quality
 > ```
+****copilot:****
+> ```bash
+> copilot plugin marketplace add funky-eyes/best-copilot
+> copilot plugin install best-copilot@best-copilot
+> ```
 
 **Option B: Local / development**
 
@@ -50,6 +55,8 @@ claude --plugin-dir /path/to/harness-skills
 ```
 
 After install, run `/td-test` in Claude Code to confirm commands are available.
+
+If you’re using Copilot, please switch to the **Senior Project Expert** agent via `/agent`. In the first session, it will automatically perform actions such as `/init`.
 
 </details>
 
