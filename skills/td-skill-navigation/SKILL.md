@@ -3,32 +3,39 @@ name: td-skill-navigation
 description: Routes and invokes agent skills. Use when starting a session or when you need to determine which skill applies to the current task. This is the meta-skill that governs how all other skills are selected and invoked.
 ---
 
-# Using TD Harness
+# TD Skill Navigation
 
 ## Overview
 
-TD Harness is a collection of engineering workflow skills organized around implementation quality. This meta-skill helps you route and apply the right skill for your current task.
+TD Harness Skills is a collection of engineering workflow skills organized by development phase. Each skill encodes a specific process that senior engineers follow. This meta-skill helps you discover and apply the right skill for your current task.
 
-This repository intentionally focuses on test, review, and simplification workflows. Requirement definition/planning and release governance are expected from upstream processes (for example spec-kit and company release workflows).
+## Skill Discovery
 
-## Skill Routing
-
-When a task arrives, identify the work type and apply the corresponding skill:
+When a task arrives, identify the development phase and apply the corresponding skill:
 
 ```
 Task arrives
     │
-    ├── Implementing code? ────────────→ `td-test-driven-development`
-    ├── Writing/running tests? ────────→ `td-test-driven-development`
-    ├── Something broke? ──────────────→ `td-test-driven-development` (Prove-It)
-    ├── Reviewing code? ───────────────→ `td-code-review-and-quality`
-    ├── Simplifying code? ─────────────→ `td-code-simplification`
-    ├── API-heavy task? ───────────────→ `td-api-and-interface-design` (optional domain)
-    ├── UI-heavy task? ────────────────→ `td-frontend-ui-engineering` (optional domain)
-    ├── Security concerns? ────────────→ `td-security-and-hardening` (optional domain)
-    ├── Performance concerns? ─────────→ `td-performance-optimization` (optional domain)
-    ├── Need doc-verified code? ───────→ `td-source-driven-development` (optional domain)
-    └── Unsure which to use? ─────────→ `td-skill-navigation` (this skill)
+    ├── Don't know what you want yet? ──────→ td-interview-me
+    ├── Have a rough concept, need variants? → td-idea-refine
+    ├── New project/feature/change? ──→ td-spec-driven-development
+    ├── Have a spec, need tasks? ──────→ td-planning-and-task-breakdown
+    ├── Implementing code? ────────────→ td-incremental-implementation
+    │   ├── UI work? ─────────────────→ td-frontend-ui-engineering
+    │   ├── API work? ────────────────→ td-api-and-interface-design
+    │   ├── Need better context? ─────→ td-context-engineering
+    │   ├── Need doc-verified code? ───→ td-source-driven-development
+    │   └── Stakes high / unfamiliar code? ──→ td-doubt-driven-development
+    ├── Writing/running tests? ────────→ td-test-driven-development
+    │   └── Browser-based? ───────────→ td-browser-testing-with-devtools
+    ├── Something broke? ──────────────→ td-debugging-and-error-recovery
+    ├── Reviewing code? ───────────────→ td-code-review-and-quality
+    │   ├── Security concerns? ───────→ td-security-and-hardening
+    │   └── Performance concerns? ────→ td-performance-optimization
+    ├── Committing/branching? ─────────→ td-git-workflow-and-versioning
+    ├── CI/CD pipeline work? ──────────→ td-ci-cd-and-automation
+    ├── Writing docs/ADRs? ───────────→ td-documentation-and-adrs
+    └── Deploying/launching? ─────────→ td-shipping-and-launch
 ```
 
 ## Core Operating Behaviors
@@ -51,7 +58,7 @@ Don't silently fill in ambiguous requirements. The most common failure mode is m
 
 ### 2. Manage Confusion Actively
 
-When you encounter inconsistencies, conflicting requirements, or unclear inputs:
+When you encounter inconsistencies, conflicting requirements, or unclear specifications:
 
 1. **STOP.** Do not proceed with a guess.
 2. Name the specific confusion.
@@ -59,7 +66,7 @@ When you encounter inconsistencies, conflicting requirements, or unclear inputs:
 4. Wait for resolution before continuing.
 
 **Bad:** Silently picking one interpretation and hoping it's right.
-**Good:** "I see X in the requirement doc but Y in the existing code. Which takes precedence?"
+**Good:** "I see X in the spec but Y in the existing code. Which takes precedence?"
 
 ### 3. Push Back When Warranted
 
@@ -92,7 +99,7 @@ Do NOT:
 - "Clean up" code orthogonal to the task
 - Refactor adjacent systems as a side effect
 - Delete code that seems unused without explicit approval
-- Add features not in scope because they "seem useful"
+- Add features not in the spec because they "seem useful"
 
 Your job is surgical precision, not unsolicited renovation.
 
@@ -112,7 +119,7 @@ These are the subtle errors that look like productivity but create problems:
 6. Overcomplicating code and APIs
 7. Modifying code or comments orthogonal to the task
 8. Removing things you don't fully understand
-9. Building without clarified requirements because "it's obvious"
+9. Building without a spec because "it's obvious"
 10. Skipping verification because "it looks right"
 
 ## Skill Rules
@@ -121,32 +128,55 @@ These are the subtle errors that look like productivity but create problems:
 
 2. **Skills are workflows, not suggestions.** Follow the steps in order. Don't skip verification steps.
 
-3. **Multiple skills can apply.** A feature implementation might involve `td-test-driven-development` → `td-code-review-and-quality` → `td-code-simplification`, optionally with domain skills like `td-api-and-interface-design` or `td-frontend-ui-engineering`.
+3. **Multiple skills can apply.** A feature implementation might involve `td-idea-refine` → `td-spec-driven-development` → `td-planning-and-task-breakdown` → `td-incremental-implementation` → `td-test-driven-development` → `td-code-review-and-quality` → `td-shipping-and-launch` in sequence.
 
-4. **When requirements are unclear, resolve ambiguity first.** Ask clarifying questions or request upstream artifacts from spec-kit before implementing.
+4. **When in doubt, start with a spec.** If the task is non-trivial and there's no spec, begin with `td-spec-driven-development`.
 
-## Workflow Sequence
+## Lifecycle Sequence
 
-For the core workflow, the typical sequence is:
+For a complete feature, the typical skill sequence is:
 
 ```
-1. `td-test-driven-development`     → Implement with failing tests first
-2. `td-code-review-and-quality`     → Review before merge
-3. `td-code-simplification`         → Reduce complexity without changing behavior
+1.  td-interview-me                → Extract what the user actually wants
+2.  td-idea-refine                 → Refine vague ideas
+3.  td-spec-driven-development     → Define what we're building
+4.  td-planning-and-task-breakdown → Break into verifiable chunks
+5.  td-context-engineering         → Load the right context
+6.  td-source-driven-development   → Verify against official docs
+7.  td-incremental-implementation  → Build slice by slice
+8.  td-doubt-driven-development    → Cross-examine non-trivial decisions in-flight
+9.  td-test-driven-development     → Prove each slice works
+10. td-code-review-and-quality     → Review before merge
+11. td-git-workflow-and-versioning → Clean commit history
+12. td-documentation-and-adrs      → Document decisions
+13. td-shipping-and-launch         → Deploy safely
 ```
 
-Optional domain skills (`td-api-and-interface-design`, `td-frontend-ui-engineering`, `td-security-and-hardening`, `td-performance-optimization`, `td-source-driven-development`) can be layered in when task context requires them.
+Not every task needs every skill. A bug fix might only need: `td-debugging-and-error-recovery` → `td-test-driven-development` → `td-code-review-and-quality`.
 
 ## Quick Reference
 
-| Category | Skill | One-Line Summary |
-|----------|-------|-----------------|
-| Core | `td-test-driven-development` | Failing test first, then make it pass |
-| Core | `td-code-review-and-quality` | Five-axis review with quality gates |
-| Core | `td-code-simplification` | Reduce complexity while preserving behavior |
-| Optional | `td-source-driven-development` | Verify against official docs before implementing |
-| Optional | `td-frontend-ui-engineering` | Production-quality UI with accessibility |
-| Optional | `td-api-and-interface-design` | Stable interfaces with clear contracts |
-| Optional | `td-security-and-hardening` | OWASP prevention, input validation, least privilege |
-| Optional | `td-performance-optimization` | Measure first, optimize only what matters |
-| Meta | `td-skill-navigation` | Route tasks to the right workflows |
+| Phase | Skill | One-Line Summary |
+|-------|-------|-----------------|
+| Define | td-interview-me | Surface what the user actually wants before any plan, spec, or code exists |
+| Define | td-idea-refine | Refine ideas through structured divergent and convergent thinking |
+| Define | td-spec-driven-development | Requirements and acceptance criteria before code |
+| Plan | td-planning-and-task-breakdown | Decompose into small, verifiable tasks |
+| Build | td-incremental-implementation | Thin vertical slices, test each before expanding |
+| Build | td-source-driven-development | Verify against official docs before implementing |
+| Build | td-doubt-driven-development | Adversarial fresh-context review of every non-trivial decision |
+| Build | td-context-engineering | Right context at the right time |
+| Build | td-frontend-ui-engineering | Production-quality UI with accessibility |
+| Build | td-api-and-interface-design | Stable interfaces with clear contracts |
+| Verify | td-test-driven-development | Failing test first, then make it pass |
+| Verify | td-browser-testing-with-devtools | Chrome DevTools MCP for runtime verification |
+| Verify | td-debugging-and-error-recovery | Reproduce → localize → fix → guard |
+| Review | td-code-review-and-quality | Five-axis review with quality gates |
+| Review | td-security-and-hardening | OWASP prevention, input validation, least privilege |
+| Review | td-performance-optimization | Measure first, optimize only what matters |
+| Review | td-code-simplification | Reduce complexity while preserving behavior |
+| Ship | td-git-workflow-and-versioning | Atomic commits, clean history |
+| Ship | td-ci-cd-and-automation | Automated quality gates on every change |
+| Ship | td-documentation-and-adrs | Document the why, not just the what |
+| Ship | td-shipping-and-launch | Pre-launch checklist, monitoring, rollback plan |
+| Ship | td-deprecation-and-migration | Safely remove old systems and migrate users |
