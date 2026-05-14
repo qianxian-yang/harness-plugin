@@ -26,6 +26,8 @@ Task arrives
     │   ├── Need better context? ─────→ td-context-engineering
     │   ├── Need doc-verified code? ───→ td-source-driven-development
     │   └── Stakes high / unfamiliar code? ──→ td-doubt-driven-development
+    ├── Writing Java? ──────────────────→ td-java-coding-guidelines
+    ├── Writing Python? ────────────────→ td-python-coding-guidelines
     ├── Writing/running tests? ────────→ td-test-driven-development
     │   └── Browser-based? ───────────→ td-browser-testing-with-devtools
     ├── Something broke? ──────────────→ td-debugging-and-error-recovery
@@ -180,3 +182,5 @@ Not every task needs every skill. A bug fix might only need: `td-debugging-and-e
 | Ship | td-documentation-and-adrs | Document the why, not just the what |
 | Ship | td-shipping-and-launch | Pre-launch checklist, monitoring, rollback plan |
 | Ship | td-deprecation-and-migration | Safely remove old systems and migrate users |
+| Language | td-java-coding-guidelines | Java coding standards based on Alibaba Java Coding Guidelines |
+| Language | td-python-coding-guidelines | Python coding standards based on Google Python Style Guide |
