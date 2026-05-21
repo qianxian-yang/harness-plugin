@@ -4,7 +4,7 @@ description: Implement the next task incrementally — build, test, verify, comm
 
 Invoke the harness-skills:td-incremental-implementation skill alongside harness-skills:td-test-driven-development.
 
-Pick the next pending task from the plan. For each task:
+Pick the next pending task from `td-harness/{version}/todo.md` (where `{version}` is the feature slug used in `/td-spec` and `/td-plan`). For each task:
 
 1. Read the task's acceptance criteria
 2. Load relevant context (existing code, patterns, types)

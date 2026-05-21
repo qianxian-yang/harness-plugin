@@ -1,4 +1,4 @@
-# TD Harness Skills
+# TD Harness CLAUDE Plugin
 
 **Production-grade engineering skills for AI coding agents — covering the full software development lifecycle from spec to ship.**
 

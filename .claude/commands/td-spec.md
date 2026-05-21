@@ -12,4 +12,6 @@ Begin by understanding what the user wants to build. Ask clarifying questions ab
 
 Then generate a structured spec covering all six core areas: objective, commands, project structure, code style, testing strategy, and boundaries.
 
-Save the spec as SPEC.md in the project root and confirm with the user before proceeding.
+Save the spec as td-harness/{version}/spec.md in the project root and confirm with the user before proceeding.
+
+`{version}` is a short kebab-case slug for the feature being specced (e.g., `user-auth`, `payment-flow`). Derive it from the user's request. If unclear, ask before saving.

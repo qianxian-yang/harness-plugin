@@ -4,7 +4,7 @@ description: Break work into small verifiable tasks with acceptance criteria and
 
 Invoke the harness-skills:td-planning-and-task-breakdown skill.
 
-Read the existing spec (SPEC.md or equivalent) and the relevant codebase sections. Then:
+Read the existing spec (td-harness/{version}/spec.md or equivalent) and the relevant codebase sections. Then:
 
 1. Enter plan mode — read only, no code changes
 2. Identify the dependency graph between components
@@ -13,4 +13,6 @@ Read the existing spec (SPEC.md or equivalent) and the relevant codebase section
 5. Add checkpoints between phases
 6. Present the plan for human review
 
-Save the plan to tasks/plan.md and task list to tasks/todo.md.
+Save the plan to td-harness/{version}/plan.md and task list to td-harness/{version}/todo.md.
+
+`{version}` is a short kebab-case slug for the feature being planned (e.g., `user-auth`, `payment-flow`). Derive it from the spec or the user's request. If unclear, ask before saving.
