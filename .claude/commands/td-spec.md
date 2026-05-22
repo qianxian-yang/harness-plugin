@@ -17,8 +17,8 @@ Follow these steps in order:
 7. **Scope check** — if the spec has 8+ success criteria or touches 3+ subsystems, propose splitting
 8. **Visual companion** — for UI features, include ASCII wireframes, state diagrams, and a component inventory
 
-Save the spec as td-harness/{version}/spec.md in the project root and confirm with the user before proceeding.
+Save the spec as `docs/td-harness/YYYY-MM-DD-<feature-name>/spec.md` in the project root and confirm with the user before proceeding.
 
-`{version}` is a short kebab-case slug for the feature being specced (e.g., `user-auth`, `payment-flow`). Derive it from the user's request. If unclear, ask before saving.
+`<feature-name>` is a short kebab-case slug (e.g., `user-auth`, `payment-flow`). `YYYY-MM-DD` is today's date. Derive the slug from the user's request. If unclear, ask before saving. Example: `docs/td-harness/2026-05-22-user-auth/spec.md`.
 
 After the spec is approved, automatically invoke `td-planning-and-task-breakdown` to continue the workflow. Do NOT wait for the user to manually request it.

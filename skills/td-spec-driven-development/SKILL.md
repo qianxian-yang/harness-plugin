@@ -50,7 +50,7 @@ Before asking a single question, silently read the codebase to understand what a
 1. Read `package.json`, `tsconfig.json`, `pyproject.toml`, or equivalent to identify tech stack and dependencies
 2. Scan the directory structure (`src/`, `lib/`, `tests/`, etc.) to understand project layout
 3. Read existing CLAUDE.md, README, or docs for conventions already in place
-4. Check for existing specs in `td-harness/` or `docs/` to avoid contradictions
+4. Check for existing specs in `docs/td-harness/` to avoid contradictions
 5. Look at recent git history (`git log --oneline -20`) to understand what the team has been working on
 
 **Why:** A spec that contradicts the existing codebase is worse than no spec. You need to know what's already there before proposing what's next.
@@ -226,6 +226,32 @@ Break the plan into discrete, implementable tasks:
 ### Phase 4: Implement
 
 Execute tasks one at a time following `skills/incremental-implementation/SKILL.md` (`incremental-implementation`) and `skills/test-driven-development/SKILL.md` (`test-driven-development`). Use `skills/context-engineering/SKILL.md` (`context-engineering`) to load the right spec sections and source files at each step rather than flooding the agent with the entire spec.
+
+## Artifact Directory Structure
+
+All td-harness artifacts are stored under `docs/td-harness/` in the project root, organized by date and feature:
+
+```
+docs/td-harness/
+├── 2026-05-20-user-auth/
+│   ├── spec.md        ← Created by /td-spec
+│   ├── plan.md        ← Created by /td-plan
+│   └── todo.md        ← Created by /td-plan
+├── 2026-05-22-payment-flow/
+│   ├── spec.md
+│   ├── plan.md
+│   └── todo.md
+└── ...
+```
+
+**Naming convention:** `YYYY-MM-DD-<feature-name>/` where:
+- `YYYY-MM-DD` is the date the spec was created
+- `<feature-name>` is a short kebab-case slug derived from the user's request (e.g., `user-auth`, `payment-flow`, `email-notifications`)
+
+**Rules:**
+- Commit these files to version control — they are project history, not throwaway notes
+- When running `/td-plan` or `/td-build`, reuse the directory created by `/td-spec`
+- If multiple specs exist, the most recent by date takes precedence unless the user specifies otherwise
 
 ## Keeping the Spec Alive
 
