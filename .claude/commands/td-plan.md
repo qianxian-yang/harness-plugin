@@ -13,7 +13,7 @@ Read the existing spec (`docs/td-harness/YYYY-MM-DD-<feature-name>/spec.md` or e
 5. Add checkpoints between phases
 6. Present the plan for human review
 
-Save the plan to `docs/td-harness/YYYY-MM-DD-<feature-name>/plan.md` and task list to `docs/td-harness/YYYY-MM-DD-<feature-name>/todo.md`.
+Save the plan (with tasks embedded as checkboxes) to `docs/td-harness/YYYY-MM-DD-<feature-name>/plan.md`.
 
 `<feature-name>` is a short kebab-case slug (e.g., `user-auth`, `payment-flow`). `YYYY-MM-DD` is today's date. Reuse the same directory created by `/td-spec` if it exists. Derive the slug from the spec or the user's request. If unclear, ask before saving.
 

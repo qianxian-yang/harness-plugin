@@ -55,7 +55,64 @@ Before asking a single question, silently read the codebase to understand what a
 
 **Why:** A spec that contradicts the existing codebase is worse than no spec. You need to know what's already there before proposing what's next.
 
-#### Step 1b: Surface assumptions
+#### Step 1b: Offer Visual Companion
+
+After exploring context but before asking questions, assess whether upcoming questions will involve visual content (UI mockups, architecture diagrams, layout comparisons, data flow diagrams). If so, offer the Visual Companion in **its own dedicated message** — do not combine it with any other content:
+
+> "Some of what we're working on might be easier to explain if I can show it to you in a web browser. I can put together mockups, diagrams, comparisons, and other visuals as we go. This feature is still new and can be token-intensive. Want to try it? (Requires opening a local URL)"
+
+Wait for the user's response before continuing. If they accept, read `visual-companion.md` for the detailed setup and interaction guide. If they decline, proceed with text-only.
+
+**Per-question decision:** Even after the user accepts, decide **for each question** whether to use the browser or the terminal. The test: would the user understand this better by seeing it than reading it?
+
+| Use the browser | Use the terminal |
+|-----------------|-----------------|
+| UI mockups, wireframes, layouts | Requirements/scope questions |
+| Architecture diagrams, data flow | Conceptual A/B/C choices |
+| Side-by-side visual comparisons | Tradeoff lists, pros/cons |
+| Design polish, visual hierarchy | Tech decisions (API design, data modeling) |
+| State machines, flowcharts, ERDs | Assumptions, success criteria |
+
+**When NOT to offer:** Skip this step for pure backend, CLI, infrastructure, or library work where no visual questions will arise.
+
+**Text fallback:** When the user declines or the environment doesn't support the browser companion, use text-based visuals instead:
+
+1. **ASCII wireframe** for layout and component placement:
+   ```
+   ┌─────────────────────────────────────┐
+   │ [Logo]  Dashboard   Settings  [👤]  │
+   ├─────────┬───────────────────────────┤
+   │ Sidebar │  ┌─────────┐ ┌─────────┐ │
+   │ • Home  │  │ Metric  │ │ Metric  │ │
+   │ • Users │  │  Card 1 │ │  Card 2 │ │
+   │ • Data  │  └─────────┘ └─────────┘ │
+   │         │  ┌─────────────────────┐  │
+   │         │  │   Chart Area        │  │
+   │         │  └─────────────────────┘  │
+   └─────────┴───────────────────────────┘
+   ```
+
+2. **State diagram** for interactive flows:
+   ```
+   [Login Page] ──credentials──→ [Validating...]
+        │                            │
+        │                       ┌────┴────┐
+        │                    success    failure
+        │                       │         │
+        │                  [Dashboard]  [Error Toast]
+        │                                 │
+        └─────────────────────────────────┘
+   ```
+
+3. **Component inventory** listing each UI element with its purpose and states:
+   ```
+   MetricCard: displays one KPI
+     - loading: skeleton shimmer
+     - loaded: value + trend arrow
+     - error: "Failed to load" with retry button
+   ```
+
+#### Step 1c: Surface assumptions
 
 Before writing any spec content, list what you're assuming based on what you found:
 
@@ -70,7 +127,7 @@ ASSUMPTIONS I'M MAKING (based on codebase exploration):
 
 Don't silently fill in ambiguous requirements. The spec's entire purpose is to surface misunderstandings *before* code gets written — assumptions are the most dangerous form of misunderstanding.
 
-#### Step 1c: Ask one question at a time
+#### Step 1d: Ask one question at a time
 
 **Do NOT batch questions.** Ask one focused question per message, with your best guess attached:
 
@@ -88,7 +145,7 @@ Wait for the answer before asking the next question. The next question often dep
 
 **Stop when** you can predict the user's answers to the next three questions you'd ask. That means you have shared understanding.
 
-#### Step 1d: Propose 2–3 implementation approaches
+#### Step 1e: Propose 2–3 implementation approaches
 
 Before writing the spec, present 2–3 distinct approaches with trade-offs:
 
@@ -111,7 +168,7 @@ RECOMMENDATION: Approach C — it matches what you already have and avoids a rew
 
 **Why:** The most valuable design decisions happen here. Jumping straight to a spec locks in one approach without showing alternatives. The user deserves to see the trade-off space.
 
-#### Step 1e: Write the spec
+#### Step 1f: Write the spec
 
 With the approach confirmed, **write a spec document covering these six core areas:**
 
@@ -207,7 +264,9 @@ The plan should be reviewable: the human should be able to read it and say "yes,
 
 ### Phase 3: Tasks
 
-Break the plan into discrete, implementable tasks:
+Tasks are **embedded as checkboxes at the end of `plan.md`**, not a separate file. This keeps plan and tasks in one document — easier to review and less file juggling.
+
+Break the plan into discrete, implementable tasks appended to the plan file:
 
 - Each task should be completable in a single focused session
 - Each task has explicit acceptance criteria
@@ -215,13 +274,22 @@ Break the plan into discrete, implementable tasks:
 - Tasks are ordered by dependency, not by perceived importance
 - No task should require changing more than ~5 files
 
-**Task template:**
+**Task section appended to plan.md:**
 ```markdown
-- [ ] Task: [Description]
+## Tasks
+
+- [ ] **Task 1: [Description]**
   - Acceptance: [What must be true when done]
   - Verify: [How to confirm — test command, build, manual check]
   - Files: [Which files will be touched]
+
+- [ ] **Task 2: [Description]**
+  - Acceptance: ...
+  - Verify: ...
+  - Files: ...
 ```
+
+Mark tasks `[x]` as they are completed during implementation.
 
 ### Phase 4: Implement
 
@@ -235,12 +303,10 @@ All td-harness artifacts are stored under `docs/td-harness/` in the project root
 docs/td-harness/
 ├── 2026-05-20-user-auth/
 │   ├── spec.md        ← Created by /td-spec
-│   ├── plan.md        ← Created by /td-plan
-│   └── todo.md        ← Created by /td-plan
+│   └── plan.md        ← Created by /td-plan (tasks embedded as checkboxes)
 ├── 2026-05-22-payment-flow/
 │   ├── spec.md
-│   ├── plan.md
-│   └── todo.md
+│   └── plan.md
 └── ...
 ```
 
@@ -304,49 +370,6 @@ This spec covers auth + permissions + audit logging. I recommend splitting:
 3. Spec C: Audit logging — depends on Spec A, independent of Spec B
 → Ship Spec A first?
 ```
-
-## Visual Companion
-
-For features with a user-facing UI, generate a visual reference alongside the spec:
-
-1. **ASCII wireframe** for layout and component placement:
-   ```
-   ┌─────────────────────────────────────┐
-   │ [Logo]  Dashboard   Settings  [👤]  │
-   ├─────────┬───────────────────────────┤
-   │ Sidebar │  ┌─────────┐ ┌─────────┐ │
-   │ • Home  │  │ Metric  │ │ Metric  │ │
-   │ • Users │  │  Card 1 │ │  Card 2 │ │
-   │ • Data  │  └─────────┘ └─────────┘ │
-   │         │  ┌─────────────────────┐  │
-   │         │  │   Chart Area        │  │
-   │         │  └─────────────────────┘  │
-   └─────────┴───────────────────────────┘
-   ```
-
-2. **State diagram** for interactive flows:
-   ```
-   [Login Page] ──credentials──→ [Validating...]
-        │                            │
-        │                       ┌────┴────┐
-        │                    success    failure
-        │                       │         │
-        │                  [Dashboard]  [Error Toast]
-        │                                 │
-        └─────────────────────────────────┘
-   ```
-
-3. **Component inventory** listing each UI element with its purpose and states:
-   ```
-   MetricCard: displays one KPI
-     - loading: skeleton shimmer
-     - loaded: value + trend arrow
-     - error: "Failed to load" with retry button
-   ```
-
-**When to include:** Any spec where the user will see a UI. Skip for pure backend, CLI, or infrastructure work.
-
-**Why:** Words describe intent; visuals reveal layout conflicts, missing states, and UX gaps that text alone misses. A 5-minute wireframe prevents a 2-hour "that's not what I meant" after implementation.
 
 ## Red Flags
 
