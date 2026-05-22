@@ -243,3 +243,9 @@ After completing all increments for a task:
 - [ ] The build is clean
 - [ ] The feature works end-to-end as specified
 - [ ] No uncommitted changes remain
+
+## Handoff
+
+All tasks complete. **Now invoke `td-test-driven-development` to verify full test coverage across the implementation.**
+
+If tests were already written per-task via TDD, this is the final coverage check — confirm no gaps remain.

@@ -19,6 +19,16 @@ Write a structured specification before writing any code. The spec is the shared
 
 **When NOT to use:** Single-line fixes, typo corrections, or changes where requirements are unambiguous and self-contained.
 
+## HARD GATE — No Code Without a Spec
+
+**You MUST NOT write implementation code, create source files, or make architectural decisions before a spec exists and is approved.** This is non-negotiable.
+
+If the user says "just start building" or "skip the spec," respond:
+
+> I can't write good code without knowing what "good" means for this project. A spec takes 10 minutes; debugging wrong assumptions takes hours. Let me ask a few quick questions first.
+
+The only exceptions are single-line fixes, typo corrections, or changes where requirements are unambiguous and self-contained (see "When NOT to use" above).
+
 ## The Gated Workflow
 
 Spec-driven development has four phases. Do not advance to the next phase until the current one is validated.
@@ -33,22 +43,77 @@ SPECIFY ──→ PLAN ──→ TASKS ──→ IMPLEMENT
 
 ### Phase 1: Specify
 
-Start with a high-level vision. Ask the human clarifying questions until requirements are concrete.
+#### Step 1a: Explore the project context
 
-**Surface assumptions immediately.** Before writing any spec content, list what you're assuming:
+Before asking a single question, silently read the codebase to understand what already exists:
+
+1. Read `package.json`, `tsconfig.json`, `pyproject.toml`, or equivalent to identify tech stack and dependencies
+2. Scan the directory structure (`src/`, `lib/`, `tests/`, etc.) to understand project layout
+3. Read existing CLAUDE.md, README, or docs for conventions already in place
+4. Check for existing specs in `td-harness/` or `docs/` to avoid contradictions
+5. Look at recent git history (`git log --oneline -20`) to understand what the team has been working on
+
+**Why:** A spec that contradicts the existing codebase is worse than no spec. You need to know what's already there before proposing what's next.
+
+#### Step 1b: Surface assumptions
+
+Before writing any spec content, list what you're assuming based on what you found:
 
 ```
-ASSUMPTIONS I'M MAKING:
-1. This is a web application (not native mobile)
-2. Authentication uses session-based cookies (not JWT)
-3. The database is PostgreSQL (based on existing Prisma schema)
-4. We're targeting modern browsers only (no IE11)
+ASSUMPTIONS I'M MAKING (based on codebase exploration):
+1. This is a web application (not native mobile) — found React in package.json
+2. Authentication uses session-based cookies — found express-session in dependencies
+3. The database is PostgreSQL — found Prisma schema pointing to postgres
+4. We're targeting modern browsers only — found browserslist config excludes IE
 → Correct me now or I'll proceed with these.
 ```
 
 Don't silently fill in ambiguous requirements. The spec's entire purpose is to surface misunderstandings *before* code gets written — assumptions are the most dangerous form of misunderstanding.
 
-**Write a spec document covering these six core areas:**
+#### Step 1c: Ask one question at a time
+
+**Do NOT batch questions.** Ask one focused question per message, with your best guess attached:
+
+```
+Q: Who is the primary user of this feature — internal engineers or end users?
+GUESS: Internal engineers, because the existing dashboard at /admin suggests this is an ops tool.
+```
+
+Wait for the answer before asking the next question. The next question often depends on the previous answer — batching locks you into the wrong framing.
+
+**Why one at a time:**
+- The user reacts faster to a wrong guess than they generate an answer from scratch
+- Batches encourage skim-reading and surface answers
+- Your guess surfaces *your* assumptions, which is what the spec process is meant to expose
+
+**Stop when** you can predict the user's answers to the next three questions you'd ask. That means you have shared understanding.
+
+#### Step 1d: Propose 2–3 implementation approaches
+
+Before writing the spec, present 2–3 distinct approaches with trade-offs:
+
+```
+APPROACH A: Server-side rendering with Next.js API routes
+  + Simpler deployment, SEO-friendly
+  − Heavier server load, harder to scale horizontally
+
+APPROACH B: SPA with separate API service
+  + Independent scaling, team can split frontend/backend
+  − More infra complexity, CORS handling
+
+APPROACH C: Hybrid — SSR for public pages, SPA for authenticated dashboard
+  + Best of both, matches existing pattern in /marketing vs /app
+  − More build complexity, two rendering modes to maintain
+
+RECOMMENDATION: Approach C — it matches what you already have and avoids a rewrite.
+→ Which direction?
+```
+
+**Why:** The most valuable design decisions happen here. Jumping straight to a spec locks in one approach without showing alternatives. The user deserves to see the trade-off space.
+
+#### Step 1e: Write the spec
+
+With the approach confirmed, **write a spec document covering these six core areas:**
 
 1. **Objective** — What are we building and why? Who is the user? What does success look like?
 
@@ -181,6 +246,82 @@ The spec is a living document, not a one-time artifact:
 | "Requirements will change anyway" | That's why the spec is a living document. An outdated spec is still better than no spec. |
 | "The user knows what they want" | Even clear requests have implicit assumptions. The spec surfaces those assumptions. |
 
+## Spec Self-Check
+
+Before presenting the spec to the user, run these checks yourself:
+
+**Placeholder scan:** Search the spec for `[TODO]`, `[TBD]`, `[placeholder]`, `???`, or any bracket-enclosed text that isn't filled in. Every field must have real content or be explicitly marked as "Open Question."
+
+**Contradiction scan:** Check that the spec doesn't contradict:
+- Itself (e.g., "use REST" in one section but "GraphQL endpoint" in another)
+- The existing codebase (e.g., specifying Jest when the project uses Vitest)
+- Constraints the user stated during questioning
+
+**Vagueness scan:** Flag any success criteria that aren't testable. "Improve performance" is not testable. "LCP < 2.5s" is testable. Every success criterion must have a concrete verification method.
+
+If any check fails, fix the issue before presenting the spec. Do NOT present a spec with known problems and hope the user catches them.
+
+## Scope Split Detection
+
+Before finalizing, assess whether the spec is too large:
+
+- **More than 8 success criteria** → likely needs splitting
+- **Touches more than 3 independent subsystems** → likely needs splitting
+- **Estimated implementation > 2 days** → likely needs splitting
+
+If the spec is too large, propose splitting into 2–3 smaller specs with explicit dependencies:
+
+```
+This spec covers auth + permissions + audit logging. I recommend splitting:
+1. Spec A: Authentication (login/logout/session) — no dependencies
+2. Spec B: Role-based permissions — depends on Spec A
+3. Spec C: Audit logging — depends on Spec A, independent of Spec B
+→ Ship Spec A first?
+```
+
+## Visual Companion
+
+For features with a user-facing UI, generate a visual reference alongside the spec:
+
+1. **ASCII wireframe** for layout and component placement:
+   ```
+   ┌─────────────────────────────────────┐
+   │ [Logo]  Dashboard   Settings  [👤]  │
+   ├─────────┬───────────────────────────┤
+   │ Sidebar │  ┌─────────┐ ┌─────────┐ │
+   │ • Home  │  │ Metric  │ │ Metric  │ │
+   │ • Users │  │  Card 1 │ │  Card 2 │ │
+   │ • Data  │  └─────────┘ └─────────┘ │
+   │         │  ┌─────────────────────┐  │
+   │         │  │   Chart Area        │  │
+   │         │  └─────────────────────┘  │
+   └─────────┴───────────────────────────┘
+   ```
+
+2. **State diagram** for interactive flows:
+   ```
+   [Login Page] ──credentials──→ [Validating...]
+        │                            │
+        │                       ┌────┴────┐
+        │                    success    failure
+        │                       │         │
+        │                  [Dashboard]  [Error Toast]
+        │                                 │
+        └─────────────────────────────────┘
+   ```
+
+3. **Component inventory** listing each UI element with its purpose and states:
+   ```
+   MetricCard: displays one KPI
+     - loading: skeleton shimmer
+     - loaded: value + trend arrow
+     - error: "Failed to load" with retry button
+   ```
+
+**When to include:** Any spec where the user will see a UI. Skip for pure backend, CLI, or infrastructure work.
+
+**Why:** Words describe intent; visuals reveal layout conflicts, missing states, and UX gaps that text alone misses. A 5-minute wireframe prevents a 2-hour "that's not what I meant" after implementation.
+
 ## Red Flags
 
 - Starting to write code without any written requirements
@@ -188,13 +329,32 @@ The spec is a living document, not a one-time artifact:
 - Implementing features not mentioned in any spec or task list
 - Making architectural decisions without documenting them
 - Skipping the spec because "it's obvious what to build"
+- Batching multiple questions in one message instead of asking one at a time
+- Writing a spec without exploring the existing codebase first
+- Presenting only one approach without showing alternatives
+- Spec contains `[TODO]`, `[TBD]`, or unfilled placeholders
+- Success criteria that aren't concretely testable
+- Spec touches 3+ independent subsystems without a split proposal
+- UI feature spec with no visual reference (wireframe, state diagram, or component inventory)
 
 ## Verification
 
 Before proceeding to implementation, confirm:
 
+- [ ] The existing codebase was explored before writing the spec
+- [ ] Questions were asked one at a time, each with a guess attached
+- [ ] 2–3 implementation approaches were presented with trade-offs
 - [ ] The spec covers all six core areas
+- [ ] The spec self-check passed (no placeholders, no contradictions, no vague criteria)
+- [ ] Scope was assessed — spec split proposed if too large
+- [ ] Visual companion included for UI features (wireframe, state diagram, component inventory)
 - [ ] The human has reviewed and approved the spec
 - [ ] Success criteria are specific and testable
 - [ ] Boundaries (Always/Ask First/Never) are defined
 - [ ] The spec is saved to a file in the repository
+
+## Handoff
+
+Spec approved and saved. **Now invoke `td-planning-and-task-breakdown` to break this into implementable tasks.**
+
+Do NOT skip to implementation. Do NOT write code until a plan exists and is approved.

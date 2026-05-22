@@ -346,3 +346,7 @@ After completing any implementation:
 - [ ] Test names describe the behavior being verified
 - [ ] No tests were skipped or disabled
 - [ ] Coverage hasn't decreased (if tracked)
+
+## Handoff
+
+All tests passing with adequate coverage. **Now invoke `td-code-review-and-quality` for a five-axis review before merging.**

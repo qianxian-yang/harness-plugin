@@ -17,3 +17,5 @@ For bug fixes (Prove-It pattern):
 5. Run the full test suite for regressions
 
 For browser-related issues, also invoke harness-skills:browser-testing-with-devtools to verify with Chrome DevTools MCP.
+
+After all tests pass with adequate coverage, automatically invoke `td-code-review-and-quality` for a five-axis review. Do NOT wait for the user to manually request it.

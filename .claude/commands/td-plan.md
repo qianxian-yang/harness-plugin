@@ -16,3 +16,5 @@ Read the existing spec (td-harness/{version}/spec.md or equivalent) and the rele
 Save the plan to td-harness/{version}/plan.md and task list to td-harness/{version}/todo.md.
 
 `{version}` is a short kebab-case slug for the feature being planned (e.g., `user-auth`, `payment-flow`). Derive it from the spec or the user's request. If unclear, ask before saving.
+
+After the plan is approved, automatically invoke `td-incremental-implementation` to begin executing the first task. Do NOT wait for the user to manually request it.

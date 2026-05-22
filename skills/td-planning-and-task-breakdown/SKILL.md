@@ -221,3 +221,9 @@ Before starting implementation, confirm:
 - [ ] No task touches more than ~5 files
 - [ ] Checkpoints exist between major phases
 - [ ] The human has reviewed and approved the plan
+
+## Handoff
+
+Plan approved and saved. **Now invoke `td-incremental-implementation` to begin executing the first task.**
+
+Follow the task order defined in the plan. Execute one task at a time.

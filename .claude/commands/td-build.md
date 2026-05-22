@@ -16,3 +16,5 @@ Pick the next pending task from `td-harness/{version}/todo.md` (where `{version}
 8. Mark the task complete and move to the next one
 
 If any step fails, follow the harness-skills:td-debugging-and-error-recovery skill.
+
+After all tasks are complete and verified, automatically invoke `td-test-driven-development` for a final coverage check. Do NOT wait for the user to manually request it.

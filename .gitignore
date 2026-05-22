@@ -7,3 +7,4 @@ harness/static-analysis/
 harness/report/
 .claude/.simplify-ignore-cache/
 .claude/sdd-cache/
+sup
