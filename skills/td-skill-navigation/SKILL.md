@@ -16,8 +16,7 @@ When a task arrives, identify the development phase and apply the corresponding 
 ```
 Task arrives
     │
-    ├── Don't know what you want yet? ──────→ td-interview-me
-    ├── Have a rough concept, need variants? → td-idea-refine
+    ├── Fuzzy ask, broad idea, or need options? → td-intent-refine
     ├── New project/feature/change? ──→ td-spec-driven-development
     ├── Have a spec, need tasks? ──────→ td-planning-and-task-breakdown
     ├── Implementing code? ────────────→ td-incremental-implementation
@@ -130,7 +129,7 @@ These are the subtle errors that look like productivity but create problems:
 
 2. **Skills are workflows, not suggestions.** Follow the steps in order. Don't skip verification steps.
 
-3. **Multiple skills can apply.** A feature implementation might involve `td-idea-refine` → `td-spec-driven-development` → `td-planning-and-task-breakdown` → `td-incremental-implementation` → `td-test-driven-development` → `td-code-review-and-quality` → `td-shipping-and-launch` in sequence.
+3. **Multiple skills can apply.** A feature implementation might involve `td-intent-refine` → `td-spec-driven-development` → `td-planning-and-task-breakdown` → `td-incremental-implementation` → `td-test-driven-development` → `td-code-review-and-quality` → `td-shipping-and-launch` in sequence.
 
 4. **When in doubt, start with a spec.** If the task is non-trivial and there's no spec, begin with `td-spec-driven-development`.
 
@@ -139,19 +138,18 @@ These are the subtle errors that look like productivity but create problems:
 For a complete feature, the typical skill sequence is:
 
 ```
-1.  td-interview-me                → Extract what the user actually wants
-2.  td-idea-refine                 → Refine vague ideas
-3.  td-spec-driven-development     → Define what we're building
-4.  td-planning-and-task-breakdown → Break into verifiable chunks
-5.  td-context-engineering         → Load the right context
-6.  td-source-driven-development   → Verify against official docs
-7.  td-incremental-implementation  → Build slice by slice
-8.  td-doubt-driven-development    → Cross-examine non-trivial decisions in-flight
-9.  td-test-driven-development     → Prove each slice works
-10. td-code-review-and-quality     → Review before merge
-11. td-git-workflow-and-versioning → Clean commit history
-12. td-documentation-and-adrs      → Document decisions
-13. td-shipping-and-launch         → Deploy safely
+1.  td-intent-refine               → Clarify intent and converge on direction
+2.  td-spec-driven-development     → Define what we're building
+3.  td-planning-and-task-breakdown → Break into verifiable chunks
+4.  td-context-engineering         → Load the right context
+5.  td-source-driven-development   → Verify against official docs
+6.  td-incremental-implementation  → Build slice by slice
+7.  td-doubt-driven-development    → Cross-examine non-trivial decisions in-flight
+8.  td-test-driven-development     → Prove each slice works
+9.  td-code-review-and-quality     → Review before merge
+10. td-git-workflow-and-versioning → Clean commit history
+11. td-documentation-and-adrs      → Document decisions
+12. td-shipping-and-launch         → Deploy safely
 ```
 
 Not every task needs every skill. A bug fix might only need: `td-debugging-and-error-recovery` → `td-test-driven-development` → `td-code-review-and-quality`.
@@ -160,8 +158,7 @@ Not every task needs every skill. A bug fix might only need: `td-debugging-and-e
 
 | Phase | Skill | One-Line Summary |
 |-------|-------|-----------------|
-| Define | td-interview-me | Surface what the user actually wants before any plan, spec, or code exists |
-| Define | td-idea-refine | Refine ideas through structured divergent and convergent thinking |
+| Define | td-intent-refine | Clarify fuzzy requests into confirmed intent and a recommended direction |
 | Define | td-spec-driven-development | Requirements and acceptance criteria before code |
 | Plan | td-planning-and-task-breakdown | Decompose into small, verifiable tasks |
 | Build | td-incremental-implementation | Thin vertical slices, test each before expanding |

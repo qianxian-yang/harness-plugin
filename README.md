@@ -57,9 +57,9 @@ After install, run `/td-test` in Claude Code to confirm commands are available.
 
 ---
 
-## All 25 Skills
+## All 24 Skills
 
-The commands above are entry points. The pack includes 25 skills total — 24 lifecycle skills plus the `td-skill-navigation` meta-skill. Each skill is a structured workflow with steps, verification gates, and anti-rationalization tables. You can also reference any skill directly.
+The commands above are entry points. The pack includes 24 skills total — 23 lifecycle skills plus the `td-skill-navigation` meta-skill. Each skill is a structured workflow with steps, verification gates, and anti-rationalization tables. You can also reference any skill directly.
 
 ### Meta - Discover which skill applies
 
@@ -71,8 +71,7 @@ The commands above are entry points. The pack includes 25 skills total — 24 li
 
 | Skill | What It Does | Use When |
 |-------|-------------|----------|
-| [td-interview-me](skills/td-interview-me/SKILL.md) | One-question-at-a-time interview that extracts what the user actually wants instead of what they think they should want, until ~95% confidence | The ask is underspecified, or the user invokes "interview me" / "grill me" |
-| [td-idea-refine](skills/td-idea-refine/SKILL.md) | Structured divergent/convergent thinking to turn vague ideas into concrete proposals | You have a rough concept that needs exploration |
+| [td-intent-refine](skills/td-intent-refine/SKILL.md) | Clarify fuzzy requests into confirmed intent and a recommended direction before spec or implementation | The ask is underspecified, too broad, or needs options and trade-offs before writing a spec |
 | [td-spec-driven-development](skills/td-spec-driven-development/SKILL.md) | Write a PRD covering objectives, commands, structure, code style, testing, and boundaries before any code | Starting a new project, feature, or significant change |
 
 ### Plan - Break it down
@@ -189,9 +188,8 @@ Every skill follows a consistent anatomy:
 
 ```
 harness-skills/
-├── skills/                               # 25 skills (24 lifecycle + 1 meta)
-│   ├── td-interview-me/                  #   Define
-│   ├── td-idea-refine/                   #   Define
+├── skills/                               # 24 skills (23 lifecycle + 1 meta)
+│   ├── td-intent-refine/                 #   Define
 │   ├── td-spec-driven-development/       #   Define
 │   ├── td-planning-and-task-breakdown/   #   Plan
 │   ├── td-incremental-implementation/    #   Build
