@@ -32,20 +32,20 @@ Skills also activate automatically based on what you're doing — designing an A
 **Option A: Marketplace (fastest)**
 
 ```bash
-claude plugin marketplace add qianxian-yang/td-harness-skills
+claude plugin marketplace add qianxian-yang/harness-plugin
 claude plugin install harness-plugin@td-quality
 ```
 
 > **SSH errors?** The marketplace clones repos via SSH. If you don't have SSH keys set up on GitHub, use the full HTTPS URL:
 > ```bash
-> claude plugin marketplace add https://github.com/qianxian-yang/td-harness-skills.git
+> claude plugin marketplace add https://github.com/qianxian-yang/harness-plugin.git
 > claude plugin install harness-plugin@td-quality
 > ```
 
 **Option B: Local / development**
 
 ```bash
-git clone https://github.com/qianxian-yang/td-harness-skills.git
+git clone https://github.com/qianxian-yang/harness-plugin.git
 claude --plugin-dir /path/to/harness-skills
 ```
 

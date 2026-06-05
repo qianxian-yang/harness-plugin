@@ -5,8 +5,8 @@
   "author": {
     "name": "qianxian.yang"
   },
-  "homepage": "https://github.com/qianxian-yang/td-harness-skills.git",
-  "repository": "https://github.com/qianxian-yang/td-harness-skills.git",
+  "homepage": "https://github.com/qianxian-yang/harness-plugin.git",
+  "repository": "https://github.com/qianxian-yang/harness-plugin.git",
   "commands": "./.claude/commands",
   "skills": "./skills",
   "agents": [

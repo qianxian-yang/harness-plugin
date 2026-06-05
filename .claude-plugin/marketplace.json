@@ -10,8 +10,8 @@
     {
       "name": "harness-plugin",
       "source": {
-        "source": "github",
-        "repo": "qianxian-yang/td-harness-skills"
+        "source": "url",
+        "url": "https://github.com/qianxian-yang/harness-plugin.git"
       },
       "description": "Production-grade engineering skills covering every phase of software development: spec, plan, build, verify, review, and ship."
     }
